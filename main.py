@@ -1,8 +1,9 @@
 import logging as log
 import os
 import sys
-import piano
-import piano_key
+from piano import Piano
+from piano_key import PianoKey
+
 
 def main():
     log.basicConfig(format='[ %(levelname)s ] %(message)s',
@@ -14,7 +15,7 @@ def main():
 
 # работа нейросети
 # берем выход сети, смотрим какие пальцы закрыли центры каких клавиш, проигрываем звук,
-# изменяем цвет клавиши чтоб было видно что нажали
+# изменяем цвет клавиши в зависимости от происходящего
 
 # отрисовка
 

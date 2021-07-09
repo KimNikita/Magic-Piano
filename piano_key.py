@@ -19,40 +19,19 @@ class PianoKey():
         self.sound = sound
         self.middle = (x2-x1, y2-y1)
         self.pressed = False
-        self.color = (255, 255, 255)
+        self.color = (255, 255, 255)  # format BGR
 
     def play_sound(self):
+        # играем звук
         pass
 
-    def postprocessing(self, out):
-        # Gain - фильтр, выход нейросети, восстанавливает амплитуду речи
-        Gain = np.transpose(out)
+    def press(self):
+        if self.pressed:
+            return
+        else:
+            self.color = (100, 40, 20)
+            self.pressed = True
 
-        # обрезаем значения, поскольку мы стремимся только к уменьшению аддитивного шума a_max=1.0
-        Gain = np.clip(Gain, a_min=self.mingain, a_max=1.0)
-        # print('filter')
-        # print(Gain.shape)
-
-        # применяя фильтр к входному спектру (образ Фурье), избавляемся от шума
-        outSpec = np.expand_dims(self.inputSpec, axis=2) * Gain
-        # print('denoised_spec')
-
-        # преобразуем обратно в массив амплитуд звукового сигнала
-        out = spec2sig(outSpec, self.cfg)
-        # print('denoised_audio')
-        # print(out.shape)
-
-        return out
-
-    def denoise(self, data):
-        # получаем спектр мощности для входа нейросети
-        inputFeature = self.preprocessing(data)
-
-        # Calculate network output
-        out = self.exec_net.infer({self.input_blob: inputFeature})[
-            self.output_blob]
-
-        # обрабатываем выход нейросети (фильтр) и конвертируем выходной спектр в звук
-        result = self.postprocessing(out)
-
-        return result
+    def unpress(self):
+        self.pressed = True
+        self.color = (255, 255, 255)
