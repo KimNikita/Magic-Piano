@@ -4,15 +4,15 @@ import numpy as np
 
 
 class PianoKey:
-    self.left = None
-    self.right = None
-    self.height = None
-    self.width = None
-    self.note = None
-    self.sound = None
-    self.middle = None
-    self.pressed = None
-    self.color = None
+    left = None
+    right = None
+    height = None
+    width = None
+    note = None
+    sound = None
+    middle = None
+    pressed = None
+    color = None
 
     # note - нота (пример "E1"), sound - путь до звукового файла
     # x1 x2 y1 y2 - координаты в пикселях если не переданы размеры image,

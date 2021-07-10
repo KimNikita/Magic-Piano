@@ -4,9 +4,9 @@ import numpy as np
 
 
 class Piano:
-    self.left = None
-    self.right = None
-    self.keys = []
+    left = None
+    right = None
+    keys = []
 
     # x1 x2 y1 y2 - координаты в пикселях если не переданы размеры image,
     #    иначе - координаты в зависимости от размеров image
