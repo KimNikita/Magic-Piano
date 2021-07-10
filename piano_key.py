@@ -3,18 +3,32 @@ import os
 import numpy as np
 
 
-class PianoKey():
+class PianoKey:
+    self.left = None
+    self.right = None
+    self.height = None
+    self.width = None
+    self.note = None
+    self.sound = None
+    self.middle = None
+    self.pressed = None
+    self.color = None
+
     # note - нота (пример "E1"), sound - путь до звукового файла
-    # x1 x2 y1 y2 - координаты в пикселях если не переданы размеры image, иначе - координаты в зависимости от размеров image
+    # x1 x2 y1 y2 - координаты в пикселях если не переданы размеры image,
+    #    иначе - координаты в зависимости от размеров image
+
     def __init__(self, x1, y1, x2, y2, note, sound, image_height=None, image_width=None):
         if image_height:
             self.left = (x1 * image_width, y1 * image_height)
             self.right = (x2 * image_width, y2 * image_height)
+            self.height = (y2-y1) * image_height
+            self.width = (x2-x1) * image_width
         else:
             self.left = (x1, y1)
             self.right = (x2, y2)
-        self.height = y2-y1
-        self.width = x2-x1
+            self.height = y2-y1
+            self.width = x2-x1
         self.note = note
         self.sound = sound
         self.middle = (x2-x1, y2-y1)
@@ -33,5 +47,5 @@ class PianoKey():
             self.pressed = True
 
     def unpress(self):
-        self.pressed = True
+        self.pressed = False
         self.color = (255, 255, 255)
