@@ -1,6 +1,8 @@
 import sys
 import os
 import numpy as np
+import time
+from playsound import playsound
 
 
 class PianoKey:
@@ -37,6 +39,10 @@ class PianoKey:
 
     def play_sound(self):
         # играем звук
+        path = self.sound + '\\' + self.note + '.mp3'
+        playsound(path)
+        # time.sleep(0.3)
+
         pass
 
     def press(self):
@@ -49,3 +55,6 @@ class PianoKey:
     def unpress(self):
         self.pressed = False
         self.color = (255, 255, 255)
+
+
+
