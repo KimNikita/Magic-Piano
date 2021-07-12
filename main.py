@@ -31,6 +31,7 @@ while cap.isOpened():
     # обрабатываем выход сети
 
     # отрисовка
+    img = cv2.flip(img, 1)
     cv2.imshow("Image", img)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
