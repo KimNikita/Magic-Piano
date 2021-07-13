@@ -43,8 +43,6 @@ class PianoKey:
         playsound(path)
         # time.sleep(0.3)
 
-        pass
-
     def press(self):
         if self.pressed:
             return
@@ -55,6 +53,3 @@ class PianoKey:
     def unpress(self):
         self.pressed = False
         self.color = (255, 255, 255)
-
-
-
