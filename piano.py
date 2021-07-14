@@ -1,6 +1,7 @@
 import sys
 import os
 import numpy as np
+from piano_key import PianoKey
 
 
 class Piano:
@@ -29,3 +30,17 @@ class Piano:
         for key in self.keys:
             # рисуем клавишу
             pass
+
+    def generator_7(self):
+        notes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4']
+        path = os.path.abspath('sound')
+        px1, py1 = self.left
+        px2, py2 = self.right
+        weight = (px2 - px1)/7
+        height = py2 - py1
+        x = 0
+        y = 0
+
+        for i in range(7):
+            self.keys[i] = PianoKey(x, y, x+weight, y+height, notes[i], path)
+            x += weight
