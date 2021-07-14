@@ -24,6 +24,7 @@ monitor = get_monitors()
 # работа нейросети
 while cap.isOpened():
     success, img = cap.read()
+    img = cv2.flip(img, 1)
     img = cv2.resize(img, (int(monitor[0].width/2), int(monitor[0].height/2)),
                      interpolation=cv2.INTER_AREA)
     hand_points = detector.findPosition(img, True)
@@ -31,7 +32,6 @@ while cap.isOpened():
     # обрабатываем выход сети
 
     # отрисовка
-    img = cv2.flip(img, 1)
     cv2.imshow("Image", img)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
