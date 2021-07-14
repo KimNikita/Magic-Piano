@@ -26,10 +26,10 @@ class Piano:
     def add_key(self, key):
         self.keys.append(key)
 
-    def draw(self):
+    def draw(self, img):
         for key in self.keys:
-            # рисуем клавишу
-            pass
+            key.draw_key(img)
+        return img
 
     def generator_7(self):
         notes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4']
