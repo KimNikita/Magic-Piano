@@ -27,7 +27,7 @@ def main():
         img = cv.flip(img, 1)
         img = cv.resize(img, (int(monitor[0].width/2), int(monitor[0].height/2)),
                         interpolation=cv.INTER_AREA)
-        hand_points = detector.findPosition(img, True)
+        left_points, right_points = detector.findPosition(img, True)
 
         # обрабатываем выход сети
 

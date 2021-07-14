@@ -34,7 +34,7 @@ class PianoKey:
             self.width = x2-x1
         self.note = note
         self.sound = sound
-        self.middle = (x2-x1, y2-y1)
+        self.middle = (int((x2-x1))/2, int((y2-y1)/2))
         self.pressed = False
         self.color = (255, 255, 255)  # format BGR
 
@@ -58,6 +58,6 @@ class PianoKey:
     def draw_key(self, img):
         x, y = self.left
         cv.rectangle(img, self.left, self.right, self.color, cv.LINE_4)
-        cv.putText(img, self.note, (x+int(self.middle[0]/2.7), int(y+self.height*0.2)),
+        cv.putText(img, self.note, (x+int(self.middle[0]/1.6), int(y+self.height*0.2)),
                    cv.FONT_HERSHEY_PLAIN, int(self.height*0.01), (0, 255, 0), 3)
         return img

@@ -22,8 +22,9 @@ class HandDetector:
         self.mpDraw = mp.solutions.drawing_utils
 
     def findPosition(self, img, draw=False):
-        lmList = [[], []]
-        i = 0
+        l_list =[]
+        r_list = []
+        f = 0
         imgRGB = cv.cvtColor(img, cv.COLOR_BGR2RGB)
         results = self.hands.process(imgRGB)
         if results.multi_hand_landmarks:
@@ -31,9 +32,12 @@ class HandDetector:
                 for id, lm in enumerate(handLms.landmark):
                     h, w, c = img.shape
                     cx, cy = int(lm.x*w), int(lm.y*h)
-                    lmList[i].append([id, cx, cy])
-                i = i+1
+                    if not f:
+                        l_list.append([id, cx, cy])
+                    else:
+                        r_list.append([id, cx, cy])
+                f = 1
                 if draw:
                     self.mpDraw.draw_landmarks(
                         img, handLms, self.mpHands.HAND_CONNECTIONS)
-        return lmList
+        return l_list, r_list
