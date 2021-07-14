@@ -1,10 +1,11 @@
 import os
 import sys
+sys.path.append("..")
 from piano_key import PianoKey
 
 
 def main():
-    path = os.path.abspath('sound')
+    path = os.path.abspath('sound_7')
     a = PianoKey(0, 0, 100, 100, 'C4', path, 1000, 1000)
     b = PianoKey(0, 0, 100, 100, 'D4', path, 1000, 1000)
     c = PianoKey(0, 0, 100, 100, 'E4', path, 1000, 1000)

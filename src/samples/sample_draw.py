@@ -1,4 +1,5 @@
 import sys
+sys.path.append("..")
 import cv2 as cv
 from screeninfo import get_monitors
 from piano import Piano
