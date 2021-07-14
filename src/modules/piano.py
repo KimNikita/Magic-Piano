@@ -1,7 +1,8 @@
 import sys
+sys.path.append("..")
 import os
 import numpy as np
-from piano_key import PianoKey
+from modules.piano_key import PianoKey
 
 
 class Piano:

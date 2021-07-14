@@ -1,11 +1,12 @@
 import logging as log
 import os
 import sys
+sys.path.append("..")
 import cv2 as cv
 from screeninfo import get_monitors
-from piano import Piano
-from piano_key import PianoKey
-from hand_tracking import HandDetector
+from modules.piano import Piano
+from modules.piano_key import PianoKey
+from modules.hand_tracking import HandDetector
 
 
 def main():
