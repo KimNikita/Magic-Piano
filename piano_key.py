@@ -58,6 +58,6 @@ class PianoKey:
     def draw_key(self, img):
         x, y = self.left
         cv2.rectangle(img, self.left, self.right, self.color, cv2.LINE_4)
-        cv2.putText(img, self.note, (x+20, int(y+self.height*0.1)),
-                    cv2.FONT_HERSHEY_PLAIN, int(self.height*0.03), (0, 0, 0), 3)
+        cv2.putText(img, self.note, (x+int(self.middle[0]/2.7), int(y+self.height*0.2)),
+                    cv2.FONT_HERSHEY_PLAIN, int(self.height*0.01), (0, 255, 0), 3)
         return img
