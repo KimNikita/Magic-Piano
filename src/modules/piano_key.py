@@ -48,7 +48,7 @@ class PianoKey:
         if self.pressed:
             return
         else:
-            self.color = (100, 40, 20)
+            self.color = (255, 0, 0)
             self.pressed = True
 
     def unpress(self):
