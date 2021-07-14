@@ -48,6 +48,7 @@ class PianoKey:
         if self.pressed:
             return
         else:
+            playsound()
             self.color = (255, 0, 0)
             self.pressed = True
 
