@@ -26,8 +26,12 @@ class Piano:
     def add_key(self, key):
         self.keys.append(key)
 
-    def generator_7(self):
+    def draw(self):
+        for key in self.keys:
+            # рисуем клавишу
+            pass
 
+    def generator_7(self):
         notes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4']
         path = os.path.abspath('sound')
         px1, py1 = self.left
