@@ -2,6 +2,7 @@ import sys
 import os
 import numpy as np
 import time
+import cv2
 from playsound import playsound
 
 
@@ -53,3 +54,10 @@ class PianoKey:
     def unpress(self):
         self.pressed = False
         self.color = (255, 255, 255)
+
+    def draw_key(self, img):
+        x, y = self.left
+        cv2.rectangle(img, self.left, self.right, self.color, cv2.LINE_4)
+        cv2.putText(img, self.note, (x+int(self.middle[0]/2.7), int(y+self.height*0.2)),
+                    cv2.FONT_HERSHEY_PLAIN, int(self.height*0.01), (0, 255, 0), 3)
+        return img
