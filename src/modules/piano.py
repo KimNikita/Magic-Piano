@@ -32,9 +32,8 @@ class Piano:
             img = key.draw_key(img)
         return img
 
-    def generator_7(self):
+    def generator_7(self, spath):
         notes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4']
-        path = os.path.abspath('sound_7')
         px1, py1 = self.left
         px2, py2 = self.right
         weight = int((px2 - px1)/7)
@@ -44,5 +43,5 @@ class Piano:
 
         for i in range(7):
             self.keys.append(
-                PianoKey(x, y, x+weight, y+height, notes[i], path))
+                PianoKey(x, y, x+weight, y+height, notes[i],  spath))
             x += weight
