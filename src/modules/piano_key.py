@@ -16,9 +16,9 @@ class PianoKey:
     middle = None
     pressed = None
     color = None
+    hashkey = None
 
     def __init__(self, x1, y1, x2, y2, note, sound, image_height=None, image_width=None):
-        # create hash key by dividing on height and width
         if image_height:
             self.left = (x1 * image_width, y1 * image_height)
             self.right = (x2 * image_width, y2 * image_height)
@@ -29,6 +29,7 @@ class PianoKey:
             self.right = (x2, y2)
             self.height = y2-y1
             self.width = x2-x1
+        self.hashkey = (x1+1) // self.width
         self.note = note
         self.sound = sound
         self.middle = (int((x2-x1))/2, int((y2-y1)/2))
@@ -38,7 +39,6 @@ class PianoKey:
     def play_sound(self):
         path = self.sound + '\\' + self.note + '.mp3'
         playsound(path, False)
-        time.sleep(0.3)
 
     def press(self):
         if self.pressed:
