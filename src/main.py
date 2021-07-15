@@ -23,7 +23,7 @@ def main():
 
     # генерация клавиш и пианино
     piano = Piano(0, 0, int(m_width/1.5), int(m_height/3))
-    spath = os.path.abspath('')[:-7] + 'sounds\sound_7'
+    spath = os.path.abspath('') + 'sounds\sound_7'
     piano.generator_7(spath)
 
     # работа нейросети
