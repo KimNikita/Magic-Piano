@@ -22,7 +22,7 @@ class HandDetector:
         self.mpDraw = mp.solutions.drawing_utils
 
     def findPosition(self, img, draw=False):
-        l_list =[]
+        l_list = []
         r_list = []
         f = 0
         imgRGB = cv.cvtColor(img, cv.COLOR_BGR2RGB)

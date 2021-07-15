@@ -1,18 +1,15 @@
+from modules.piano_key import PianoKey
+import numpy as np
+import os
 import sys
 sys.path.append("..")
-import os
-import numpy as np
-from modules.piano_key import PianoKey
 
 
 class Piano:
     left = None
     right = None
+    # use hash table instead of list
     keys = []
-
-    # x1 x2 y1 y2 - координаты в пикселях если не переданы размеры image,
-    #    иначе - координаты в зависимости от размеров image
-    # keys - список клавиш, если нет, то вручную добавлять через метод
 
     def __init__(self, x1, y1, x2, y2, keys=None, image_height=None, image_width=None):
         if image_height:
