@@ -8,8 +8,7 @@ sys.path.append("..")
 class Piano:
     left = None
     right = None
-    # use hash table instead of list
-    keys = []
+    keys = {}
 
     def __init__(self, x1, y1, x2, y2, keys=None, image_height=None, image_width=None):
         if image_height:
@@ -22,23 +21,22 @@ class Piano:
             self.keys = keys
 
     def add_key(self, key):
-        self.keys.append(key)
+        self.keys[key.hash] = key
 
     def draw(self, img):
         for key in self.keys:
-            img = key.draw_key(img)
+            img = self.keys[key].draw_key(img)
         return img
 
     def generator_7(self, spath):
         notes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4']
         px1, py1 = self.left
         px2, py2 = self.right
-        weight = int((px2 - px1)/7)
+        width = int((px2 - px1)/7)
         height = py2 - py1
         x = 0
         y = 0
 
         for i in range(7):
-            self.keys.append(
-                PianoKey(x, y, x+weight, y+height, notes[i],  spath))
-            x += weight
+            self.keys[(x+1)//width] = PianoKey(x, y, x+width, y+height, notes[i],  spath)
+            x += width
