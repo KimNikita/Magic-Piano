@@ -8,6 +8,7 @@ sys.path.append("..")
 class Piano:
     left = None
     right = None
+    # use hash table instead of list
     keys = []
 
     def __init__(self, x1, y1, x2, y2, keys=None, image_height=None, image_width=None):

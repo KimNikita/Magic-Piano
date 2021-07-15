@@ -18,6 +18,7 @@ class PianoKey:
     color = None
 
     def __init__(self, x1, y1, x2, y2, note, sound, image_height=None, image_width=None):
+        # create hash key by dividing on height and width
         if image_height:
             self.left = (x1 * image_width, y1 * image_height)
             self.right = (x2 * image_width, y2 * image_height)
