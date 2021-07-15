@@ -1,7 +1,7 @@
+from modules.piano_key import PianoKey
 import os
 import sys
 sys.path.append("..")
-from modules.piano_key import PianoKey
 
 
 def main():

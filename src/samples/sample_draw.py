@@ -1,8 +1,8 @@
+from modules.piano import Piano
+from screeninfo import get_monitors
+import cv2 as cv
 import sys
 sys.path.append("..")
-import cv2 as cv
-from screeninfo import get_monitors
-from modules.piano import Piano
 
 
 def main():
