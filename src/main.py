@@ -15,7 +15,7 @@ def main():
                     level=log.INFO, stream=sys.stdout)
 
     # инициализация значений
-    cap = cv.VideoCapture(0)
+    cap = cv.VideoCapture(1)
     detector = HandDetector()
     monitor = get_monitors()
     m_width = monitor[0].width
@@ -23,14 +23,18 @@ def main():
 
     # генерация клавиш и пианино
     piano = Piano(0, 0, int(m_width/1.5), int(m_height/3))
-    spath = os.path.abspath('') + '\\sounds\\sound_7'
+    spath = os.path.abspath('') + '\\sounds\\sound_4'
 
     piano.generator_7(spath)
 
     # работа нейросети
+    turn = False
     while cap.isOpened():
         success, img = cap.read()
-        img = cv.flip(img, 1)
+        if turn:
+            img = cv.flip(img, -1)
+        else:
+            img = cv.flip(img, 1)
         img = cv.resize(img, (int(m_width/1.5), int(m_height/1.5)),
                         interpolation=cv.INTER_AREA)
         left_points, right_points = detector.findPosition(img, True)
