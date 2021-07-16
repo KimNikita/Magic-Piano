@@ -29,7 +29,8 @@ class Piano:
         return img
 
     def generator_7(self, spath):
-        notes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4']
+        notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
+        octave = spath[-1:]
         px1, py1 = self.left
         px2, py2 = self.right
         width = int((px2 - px1)/7)
@@ -38,5 +39,5 @@ class Piano:
         y = 0
 
         for i in range(7):
-            self.keys[(x+1)//width] = PianoKey(x, y, x+width, y+height, notes[i],  spath)
+            self.keys[(x+1)//width] = PianoKey(x, y, x+width, y+height, notes[i]+octave,  spath)
             x += width
