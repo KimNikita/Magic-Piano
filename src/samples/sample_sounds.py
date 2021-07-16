@@ -5,7 +5,7 @@ sys.path.append("..")
 
 
 def main():
-    path = os.path.abspath('')[:-7] + 'sounds\sound_7'
+    path = os.path.abspath('')[:-7] + '\\sounds\\sound_4'
     a = PianoKey(0, 0, 100, 100, 'C4', path, 1000, 1000)
     b = PianoKey(0, 0, 100, 100, 'D4', path, 1000, 1000)
     c = PianoKey(0, 0, 100, 100, 'E4', path, 1000, 1000)
