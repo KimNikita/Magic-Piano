@@ -16,10 +16,7 @@ class PianoKey:
     middle = None
     pressed = None
     color = None
-
-    # note - нота (пример "E1"), sound - путь до звукового файла
-    # x1 x2 y1 y2 - координаты в пикселях если не переданы размеры image,
-    #    иначе - координаты в зависимости от размеров image
+    hashkey = None
 
     def __init__(self, x1, y1, x2, y2, note, sound, image_height=None, image_width=None):
         if image_height:
@@ -32,6 +29,7 @@ class PianoKey:
             self.right = (x2, y2)
             self.height = y2-y1
             self.width = x2-x1
+        self.hashkey = (x1+1) // self.width
         self.note = note
         self.sound = sound
         self.middle = (int((x2-x1))/2, int((y2-y1)/2))
@@ -39,10 +37,8 @@ class PianoKey:
         self.color = (255, 255, 255)  # format BGR
 
     def play_sound(self):
-        # играем звук
         path = self.sound + '\\' + self.note + '.mp3'
-        playsound(path)
-        # time.sleep(0.3)
+        playsound(path, False)
 
     def press(self):
         if self.pressed:
