@@ -28,13 +28,10 @@ def main():
     piano.generator_7(spath)
 
     # работа нейросети
-    turn = False
+    turn = 1
     while cap.isOpened():
         success, img = cap.read()
-        if turn:
-            img = cv.flip(img, -1)
-        else:
-            img = cv.flip(img, 1)
+        img = cv.flip(img, turn)
         img = cv.resize(img, (int(m_width/1.5), int(m_height/1.5)),
                         interpolation=cv.INTER_AREA)
         left_points, right_points = detector.findPosition(img, True)
