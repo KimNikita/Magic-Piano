@@ -15,7 +15,7 @@ def main():
                     level=log.INFO, stream=sys.stdout)
 
     # инициализация значений
-    cap = cv.VideoCapture(1)
+    cap = cv.VideoCapture(0)
     detector = HandDetector()
     monitor = get_monitors()
     m_width = monitor[0].width
