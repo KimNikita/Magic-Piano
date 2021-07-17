@@ -18,7 +18,6 @@ def main():
     cap = cv.VideoCapture(0)
     detector = HandDetector()
     monitor = get_monitors()
-    success, img = cap.read()
 
     m_width = monitor[0].width
     m_height = monitor[0].height
