@@ -18,17 +18,21 @@ def main():
     cap = cv.VideoCapture(0)
     detector = HandDetector()
     monitor = get_monitors()
+    success, img = cap.read()
+
     m_width = monitor[0].width
     m_height = monitor[0].height
+
     # генерация клавиш и пианино
-    piano = Piano(int(m_width/50), int(m_height/50), int(m_width/1.6), int(m_height/3))
+    piano = Piano(int(m_width/50), int(m_height/50),
+                  int(m_width/1.6), int(m_height/3))
     spath = os.path.abspath('') + '\\sounds\\sound_4'
 
     piano.generator_7(spath)
 
     # работа нейросети
     turn = 1
-    cond = 25
+    cond = 20
     while cap.isOpened():
         success, img = cap.read()
         img = cv.flip(img, turn)
@@ -47,13 +51,14 @@ def main():
                 if left_points[i][2] < zone and left_points[i][0] % 4 == 0:
                     fingers.append((left_points[i], left_points[i-1]))
         if right_points:
-            for i in range(len(left_points)):
+            for i in range(len(right_points)):
                 if right_points[i][2] < zone and right_points[i][0] % 4 == 0:
                     fingers.append((right_points[i], right_points[i-1]))
 
         if fingers:
             for finger in fingers:
-                key_hash = finger[0][1]//hashs
+                key_hash = (finger[0][1]-int(m_width/50) -
+                            (finger[0][1]//hashs)*len(piano.keys))//hashs
                 if -1 < key_hash < 7:
                     if finger[0][2] > finger[1][2] or math.sqrt((finger[0][1]-finger[1][1])**2 + (finger[0][2]-finger[1][2])**2) < cond:
                         piano.keys[key_hash].press()
