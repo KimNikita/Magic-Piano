@@ -21,17 +21,17 @@ class PianoKey:
         if image_height:
             self.left = (x1 * image_width, y1 * image_height)
             self.right = (x2 * image_width, y2 * image_height)
-            self.height = (y2-y1) * image_height
-            self.width = (x2-x1) * image_width
+            self.height = (y2 - y1) * image_height
+            self.width = (x2 - x1) * image_width
         else:
             self.left = (x1, y1)
             self.right = (x2, y2)
-            self.height = y2-y1
-            self.width = x2-x1
-        self.hashkey = (x1+1) // self.width
+            self.height = y2 - y1
+            self.width = x2 - x1
+        self.hashkey = (x1 + 1) // self.width
         self.note = note
         self.sound = sound
-        self.middle = (int((x2-x1))/2, int((y2-y1)/2))
+        self.middle = (int((x2 - x1)) / 2, int((y2 - y1) / 2))
         self.pressed = False
         self.color = (255, 255, 255)  # format BGR
 
@@ -54,6 +54,8 @@ class PianoKey:
     def draw_key(self, img):
         x, y = self.left
         cv.rectangle(img, self.left, self.right, self.color, cv.LINE_4)
-        cv.putText(img, self.note, (x+int(self.middle[0]/1.6), int(y+self.height*0.2)),
-                   cv.FONT_HERSHEY_PLAIN, int(self.height*0.01), (0, 255, 0), 3)
+        font = cv.FONT_HERSHEY_PLAIN
+        color = (0, 255, 0)
+        cv.putText(img, self.note, (x + int(self.middle[0] / 1.6), int(y + self.height * 0.2)),
+                   font, int(self.height * 0.01), color, 3)
         return img
