@@ -28,13 +28,13 @@ def main():
 
     # работа нейросети
     turn = 1
+    cond = 25
     while cap.isOpened():
         success, img = cap.read()
         img = cv.flip(img, turn)
         img = cv.resize(img, (int(m_width/1.5), int(m_height/1.5)),
                         interpolation=cv.INTER_AREA)
         left_points, right_points = detector.findPosition(img, True)
-        cond = 25
         fingers = []
         zone = piano.keys[0].height
         hashs = piano.keys[0].width
