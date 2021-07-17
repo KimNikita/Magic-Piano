@@ -32,6 +32,8 @@ def main():
     # работа нейросети
     turn = 1
     cond = 20
+    pianolen = len(piano.keys)
+    indent = int(m_width/50)
     while cap.isOpened():
         success, img = cap.read()
         img = cv.flip(img, turn)
@@ -56,8 +58,8 @@ def main():
 
         if fingers:
             for finger in fingers:
-                key_hash = (finger[0][1]-int(m_width/50) -
-                            (finger[0][1]//hashs)*len(piano.keys))//hashs
+                key_hash = (finger[0][1]-indent -
+                            (finger[0][1]//hashs)*pianolen)//hashs
                 if -1 < key_hash < 7:
                     if finger[0][2] > finger[1][2] or math.sqrt((finger[0][1]-finger[1][1])**2 + (finger[0][2]-finger[1][2])**2) < cond:
                         piano.keys[key_hash].press()
