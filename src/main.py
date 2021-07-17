@@ -53,11 +53,11 @@ def main():
 
         if fingers:
             for finger in fingers:
-                hh = finger[0][1]//hashs
-                if -1 < hh < 7:
+                key_hash = finger[0][1]//hashs
+                if -1 < key_hash < 7:
                     if finger[0][2] > finger[1][2] or math.sqrt((finger[0][1]-finger[1][1])**2 + (finger[0][2]-finger[1][2])**2) < cond:
-                        piano.keys[hh].press()
-                        pressed[hh] = True
+                        piano.keys[key_hash].press()
+                        pressed[key_hash] = True
 
         for key in piano.keys:
             if not pressed[key]:
