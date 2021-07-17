@@ -18,11 +18,10 @@ def main():
     cap = cv.VideoCapture(0)
     detector = HandDetector()
     monitor = get_monitors()
-    m_width = monitor[0].width
-    m_height = monitor[0].height
-
+    m_width = monitor[1].width
+    m_height = monitor[1].height
     # генерация клавиш и пианино
-    piano = Piano(0, 0, int(m_width/1.5), int(m_height/3))
+    piano = Piano(int(m_width/50), int(m_height/50), int(m_width/1.6), int(m_height/3))
     spath = os.path.abspath('') + '\\sounds\\sound_4'
 
     piano.generator_7(spath)
@@ -54,7 +53,7 @@ def main():
 
         if fingers:
             for finger in fingers:
-                if finger[0][1]//hashs > -1 and finger[0][1]//hashs < 7:
+                if -1 < finger[0][1]//hashs < 7:
                     if finger[0][2] > finger[1][2] or math.sqrt((finger[0][1]-finger[1][1])**2 + (finger[0][2]-finger[1][2])**2) < cond:
                         piano.keys[finger[0][1]//hashs].press()
                         pressed[finger[0][1]//hashs] = True
