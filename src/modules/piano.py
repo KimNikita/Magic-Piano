@@ -31,6 +31,10 @@ class Piano:
         return img
 
     def key_generator(self, spath, octave, key_num):
+        if (key_num > 14) and (octave != 4):
+            key_num = 7
+            octave = 4
+
         notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
         px1, py1 = self.left
         px2, py2 = self.right
