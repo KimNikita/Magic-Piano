@@ -27,7 +27,12 @@ def main():
                   int(m_width/1.6), int(m_height/3))
     spath = os.path.abspath('') + '\\sounds'
 
-    piano.key_generator(spath, 4, 6)
+    key_num = 7
+    octave = 4
+    if key_num <= 14 and octave in [4]:
+        piano.key_generator(spath, octave, key_num)
+    else:
+        piano.key_generator(spath, 4, 7)
 
     # работа нейросети
     turn = 1
