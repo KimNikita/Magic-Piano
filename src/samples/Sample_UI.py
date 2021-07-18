@@ -3,6 +3,7 @@ import cv2 as cv
 import math
 import os
 import sys
+
 sys.path.append("..")
 
 from PySide2 import QtCore, QtGui, QtWidgets
@@ -22,9 +23,9 @@ detector = HandDetector()
 # генерация клавиш и пианино
 piano = Piano(int(m_width / 50), int(m_height / 50),
               int(m_width / 1.6), int(m_height / 3))
-spath = os.path.abspath('')[:-7] + '\\sounds\\sound_4'
-piano.generator_7(spath)
-# работа нейросети
+spath = os.path.abspath('')[:-7] + '\\sounds'
+piano.key_generator(spath, 4, 7)
+
 turn = 1
 cond = 20
 pianolen = len(piano.keys)
@@ -32,13 +33,16 @@ indent = int(m_width / 50)
 
 
 class VideoPlayer(QtWidgets.QWidget):
-    def __init__(self, width=m_width, height=m_height, fps=30):
+    pause = False
+    video = False
+
+    def __init__(self, fps=30):
         QtWidgets.QWidget.__init__(self)
         self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowCloseButtonHint)
         self.setWindowTitle('Magic Piano')
-        # self.setFixedSize(int(m_width / 1.5), int(m_height / 1.3))
         self.setFixedSize(self.sizeHint())
         self.camera_capture = cv.VideoCapture(cv.CAP_DSHOW)
+        self.video_capture = cv.VideoCapture()
 
         self.frame_timer = QtCore.QTimer()
         self.setup_camera(fps)
@@ -48,10 +52,15 @@ class VideoPlayer(QtWidgets.QWidget):
         # в Qt label работает для вывода изображения
         self.frame_label = QtWidgets.QLabel()
         self.quit_buttom = QtWidgets.QPushButton('Quit')
+        self.play_pause_buttom = QtWidgets.QPushButton('Pause')
+        self.camera_video_buttom = QtWidgets.QPushButton('Switch to video')
 
         self.main_layout = QtWidgets.QGridLayout()
 
         self.setup_ui()
+
+        self.play_pause_buttom.clicked.connect(self.play_pause)
+        self.camera_video_buttom.clicked.connect(self.camera_video)
 
     def setup_ui(self):
         # передали адрес функции
@@ -59,9 +68,32 @@ class VideoPlayer(QtWidgets.QWidget):
 
         # геолокация 1-2 клеточки 1-размер по высоте 2-по ширине
         self.main_layout.addWidget(self.frame_label, 0, 0, 1, 2)
+        self.main_layout.addWidget(self.play_pause_buttom, 1, 0, 1, 1)
+        self.main_layout.addWidget(self.camera_video_buttom, 1, 1, 1, 1)
         self.main_layout.addWidget(self.quit_buttom, 2, 0, 1, 2)
 
         self.setLayout(self.main_layout)
+
+    def play_pause(self):
+        if not self.pause:
+            self.frame_timer.stop()
+            self.play_pause_buttom.setText('Play')
+        else:
+            self.frame_timer.start(int(1000 // self.fps))
+            self.play_pause_buttom.setText('Pause')
+        self.pause = not self.pause
+
+    def camera_video(self):
+        if not self.video:
+            path = QtWidgets.QFileDialog.getOpenFileName(dir='C:\\', filter='Videos (*.mp4)')
+            if len(path[0]):
+                self.video_capture.open(path[0])
+                self.camera_video_buttom.setText('Switch to camera')
+            else:
+                self.camera_video_buttom.setText('Switch to video')
+                self.video_capture.release()
+
+        self.video = not self.video
 
     def setup_camera(self, fps):
         self.frame_timer.timeout.connect(self.display_video_stream)
@@ -70,14 +102,17 @@ class VideoPlayer(QtWidgets.QWidget):
 
     def display_video_stream(self):
 
-        ret, img = self.camera_capture.read()
+        if not self.video:
+            ret, img = self.camera_capture.read()
+        else:
+            ret, img = self.video_capture.read()
 
         if not ret:
             return False
 
-        img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+        if not self.video:
+            img = cv.flip(img, turn)
 
-        img = cv.flip(img, turn)
         img = cv.resize(img, (int(m_width / 1.5), int(m_height / 1.5)),
                         interpolation=cv.INTER_AREA)
         left_points, right_points = detector.findPosition(img, True)
@@ -99,8 +134,8 @@ class VideoPlayer(QtWidgets.QWidget):
         if fingers:
             for finger in fingers:
                 key_hash = (finger[0][1] - indent -
-                            (finger[0][1] // hashs) * pianolen) // hashs
-                if -1 < key_hash < 7:
+                            (finger[0][1] // hashs) * piano.indent) // hashs
+                if -1 < key_hash < pianolen:
                     if finger[0][2] > finger[1][2] or math.sqrt(
                             (finger[0][1] - finger[1][1]) ** 2 + (finger[0][2] - finger[1][2]) ** 2) < cond:
                         piano.keys[key_hash].press()
@@ -111,7 +146,7 @@ class VideoPlayer(QtWidgets.QWidget):
                 piano.keys[key].unpress()
         # отрисовка
         img = piano.draw(img)
-
+        img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
         image = qimage2ndarray.array2qimage(img)
 
         self.frame_label.setPixmap(QtGui.QPixmap.fromImage(image))
@@ -128,4 +163,3 @@ if __name__ == '__main__':
     player.show()
 
     sys.exit(app.exec_())
-
