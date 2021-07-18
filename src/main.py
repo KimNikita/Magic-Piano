@@ -25,9 +25,9 @@ def main():
     # генерация клавиш и пианино
     piano = Piano(int(m_width/50), int(m_height/50),
                   int(m_width/1.6), int(m_height/3))
-    spath = os.path.abspath('') + '\\sounds\\sound_4'
+    spath = os.path.abspath('') + '\\sounds'
 
-    piano.generator_7(spath)
+    piano.key_generator(spath, 4, 6)
 
     # работа нейросети
     turn = 1
@@ -59,8 +59,8 @@ def main():
         if fingers:
             for finger in fingers:
                 key_hash = (finger[0][1]-indent -
-                            (finger[0][1]//hashs)*pianolen)//hashs
-                if -1 < key_hash < 7:
+                            (finger[0][1]//hashs)*piano.indent)//hashs
+                if -1 < key_hash < pianolen:
                     if finger[0][2] > finger[1][2] or math.sqrt((finger[0][1]-finger[1][1])**2 + (finger[0][2]-finger[1][2])**2) < cond:
                         piano.keys[key_hash].press()
                         pressed[key_hash] = True
