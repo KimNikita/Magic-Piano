@@ -10,6 +10,14 @@ import sys
 sys.path.append("..")
 
 
+def balance(id):
+    if id == 4:
+        return 6
+    elif id == 20:
+        return -2
+    return 0
+
+
 def main():
     log.basicConfig(format='[ %(levelname)s ] %(message)s',
                     level=log.INFO, stream=sys.stdout)
@@ -32,7 +40,7 @@ def main():
 
     # работа нейросети
     turn = 1
-    cond = 20
+    cond = 15
     pianolen = len(piano.keys)
     indent = int(width/50)
     while cap.isOpened():
@@ -60,7 +68,7 @@ def main():
                 key_hash = (finger[0][1]-indent -
                             (finger[0][1]//hashs)*piano.indent)//hashs
                 if -1 < key_hash < pianolen:
-                    if finger[0][2] > finger[1][2] or math.sqrt((finger[0][1]-finger[1][1])**2 + (finger[0][2]-finger[1][2])**2) < cond:
+                    if finger[0][2] > finger[1][2] or math.sqrt((finger[0][1]-finger[1][1])**2 + (finger[0][2]-finger[1][2])**2) < cond + balance(finger[0][0]):
                         piano.keys[key_hash].press()
                         pressed[key_hash] = True
 
