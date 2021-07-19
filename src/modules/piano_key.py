@@ -36,7 +36,7 @@ class PianoKey:
         self.color = (255, 255, 255)  # format BGR
 
     def play_sound(self):
-        path = self.sound + '\\' + self.note + '.mp3'
+        path = self.sound + '\\' + self.note + '.wav'
         playsound(path, False)
 
     def press(self):
