@@ -30,6 +30,15 @@ class Piano:
             img = self.keys[key].draw_key(img)
         return img
 
+    def press_key(self, id):
+        self.keys[id].press()
+
+    def unpress_key(self, id):
+        self.keys[id].unpress()
+
+    def get_key_shape(self, id):
+        return [self.keys[id].height, self.keys[id].width]
+
     def key_generator(self, spath, octave, key_num):
         octave_max = 5
         octave_min = 3
