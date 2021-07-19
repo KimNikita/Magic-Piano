@@ -10,6 +10,14 @@ import sys
 sys.path.append("..")
 
 
+def balance(id):
+    if id == 4:
+        return 6
+    elif id == 20:
+        return -2
+    return 0
+
+
 def main():
     log.basicConfig(format='[ %(levelname)s ] %(message)s',
                     level=log.INFO, stream=sys.stdout)
@@ -18,27 +26,26 @@ def main():
     cap = cv.VideoCapture(0)
     detector = HandDetector()
     monitor = get_monitors()
-
+    success, img = cap.read()
     m_width = monitor[0].width
     m_height = monitor[0].height
+    height, width = img.shape[:2]
 
     # генерация клавиш и пианино
-    piano = Piano(int(m_width/50), int(m_height/50),
-                  int(m_width/1.6), int(m_height/3))
+    piano = Piano(int(width/50), int(height/50),
+                  width, int(height/2))
     spath = os.path.abspath('') + '\\sounds'
 
     piano.key_generator(spath, 4, 7)
 
     # работа нейросети
     turn = 1
-    cond = 20
+    cond = 15
     pianolen = len(piano.keys)
-    indent = int(m_width/50)
+    indent = int(width/50)
     while cap.isOpened():
         success, img = cap.read()
         img = cv.flip(img, turn)
-        img = cv.resize(img, (int(m_width/1.5), int(m_height/1.5)),
-                        interpolation=cv.INTER_AREA)
         left_points, right_points = detector.findPosition(img, True)
         fingers = []
         zone = piano.keys[0].height
@@ -61,7 +68,7 @@ def main():
                 key_hash = (finger[0][1]-indent -
                             (finger[0][1]//hashs)*piano.indent)//hashs
                 if -1 < key_hash < pianolen:
-                    if finger[0][2] > finger[1][2] or math.sqrt((finger[0][1]-finger[1][1])**2 + (finger[0][2]-finger[1][2])**2) < cond:
+                    if finger[0][2] > finger[1][2] or math.sqrt((finger[0][1]-finger[1][1])**2 + (finger[0][2]-finger[1][2])**2) < cond + balance(finger[0][0]):
                         piano.keys[key_hash].press()
                         pressed[key_hash] = True
 
@@ -71,6 +78,8 @@ def main():
 
         # отрисовка
         img = piano.draw(img)
+        img = cv.resize(img, (int(m_width/1.5), int(m_height/1.5)),
+                        interpolation=cv.INTER_AREA)
         cv.imshow("Image", img)
 
         if cv.waitKey(1) & 0xFF == ord('q'):
