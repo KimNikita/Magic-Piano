@@ -1,19 +1,18 @@
-from modules.piano import Piano
-from screeninfo import get_monitors
 import time
 import os
 import numpy as np
 import cv2 as cv
 import sys
 sys.path.append("..")
-
+from modules.piano import Piano
+from screeninfo import get_monitors
 
 def main():
     cap = cv.VideoCapture(0)
     monitor = get_monitors()
-    spath = os.path.abspath('')[:-7] + '\\sounds\\sound_4'
+    spath = os.path.abspath('')[:-7] + '\\sounds'
     piano = Piano(0, 0, int(monitor[0].width/2), int(monitor[0].height/4))
-    piano.generator_7(spath)
+    piano.key_generator(spath, 3, 7)
     cam = False
     if cam:
         success, img = cap.read()
