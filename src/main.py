@@ -36,7 +36,7 @@ def main():
                   width, int(height/2))
     spath = os.path.abspath('') + '\\sounds'
 
-    piano.key_generator(spath, 4, 7)
+    piano.key_generator(spath, 3, 14)
 
     # работа нейросети
     turn = 1
