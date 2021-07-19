@@ -1,8 +1,8 @@
-from modules.piano_key import PianoKey
 import os
 import sys
+import time
 sys.path.append("..")
-
+from modules.piano_key import PianoKey
 
 def main():
     path = os.path.abspath('')[:-7] + '\\sounds\\sound_4'
@@ -17,18 +17,25 @@ def main():
     for i in range(3):
         print('Now play C4')
         a.play_sound()
+        time.sleep(0.3)
         print('Now play D4')
         b.play_sound()
+        time.sleep(0.3)
         print('Now play E4')
         c.play_sound()
+        time.sleep(0.3)
         print('Now play F4')
         d.play_sound()
+        time.sleep(0.3)
         print('Now play G4')
         e.play_sound()
+        time.sleep(0.3)
         print('Now play A4')
         f.play_sound()
+        time.sleep(0.3)
         print('Now play B4')
         k.play_sound()
+        time.sleep(0.3)
 
 
 if __name__ == '__main__':
