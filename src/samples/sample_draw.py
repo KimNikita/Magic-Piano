@@ -24,14 +24,14 @@ def main():
     img = piano.draw(img)
 
     for i in range(7):
-        piano.keys[i].press()
-        img = piano.keys[i].draw_key(img)
+        piano.press_key(i)
+        img = piano.draw(img)
 
         cv.imshow("Image", img)
         time.sleep(0.8)
 
-        piano.keys[i].unpress()
-        img = piano.keys[i].draw_key(img)
+        piano.unpress_key(i)
+        img = piano.draw(img)
         if cv.waitKey(1) & 0xFF == ord('q'):
             break
 
