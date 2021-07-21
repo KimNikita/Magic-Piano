@@ -260,9 +260,8 @@ class VideoPlayer(QtWidgets.QWidget):
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     app.setStyle('Fusion')
-    app.setWindowIcon(QtGui.QIcon('src/icon/icon.png'))
+    app.setWindowIcon(QtGui.QIcon('../icon/icon.png'))
     player = VideoPlayer()
-
     player.show()
 
     sys.exit(app.exec_())
