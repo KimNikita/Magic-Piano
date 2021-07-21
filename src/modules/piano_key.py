@@ -56,6 +56,6 @@ class PianoKey:
         cv.rectangle(img, self.left, self.right, self.color, cv.LINE_4)
         font = cv.FONT_HERSHEY_PLAIN
         color = (0, 255, 0)
-        cv.putText(img, self.note, (x + int(self.middle[0] / 1.6), int(y + self.height * 0.2)),
-                   font, int(self.height * 0.01), color, 3)
+        cv.putText(img, self.note, (x + int(self.middle[0] / (self.width*0.2)), int(y + self.height * 0.2)),
+                   font, int(self.width * 0.046), color, 2)
         return img
