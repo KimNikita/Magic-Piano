@@ -2,6 +2,7 @@ from modules.piano_key import PianoKey
 import numpy as np
 import os
 import sys
+
 sys.path.append("..")
 
 
@@ -43,9 +44,11 @@ class Piano:
             return [self.keys[id].height, self.keys[id].width]
 
     def key_generator(self, spath, octave, key_num):
+        # <!!! ОЧЕНЬ нужная штука !!!> #
+        self.keys = {}
         octave_max = 5
         octave_min = 3
-        if ((octave_max - octave + 1) * 7 < key_num or octave < octave_min):
+        if (octave_max - octave + 1) * 7 < key_num or octave < octave_min:
             octave = octave_min
             key_num = 7
 
@@ -63,14 +66,16 @@ class Piano:
         for i in range(div):
             for j in range(7):
                 self.keys[k] = PianoKey(x, y, x + width, y + height, notes[j] + str(octave),
-                                                       spath + '\\sound_' + str(octave))
+                                        spath + '\\sound_' + str(octave))
                 x += width + self.indent
                 k += 1
             octave += 1
 
         for i in range(mod):
             self.keys[k] = PianoKey(x, y, x + width, y + height, notes[i] + str(octave),
-                                                  spath + '\\sound_' + str(octave))
+                                    spath + '\\sound_' + str(octave))
             k += 1
             x += width + self.indent
 
+    def set_settings(self):
+        pass

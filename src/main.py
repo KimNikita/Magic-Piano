@@ -25,10 +25,13 @@ def main():
     monitor = get_monitors()
     m_width = monitor[0].width
     m_height = monitor[0].height
+
+    success, img = cap.read()
+    height, width = img.shape[:2]
+    pgame = Game(height, width, spath)
+
     while cap.isOpened():
         success, img = cap.read()
-        height, width = img.shape[:2]
-        pgame = Game(height, width, spath)
         img = pgame.render(img)
         img = cv.resize(img, (int(m_width / 1.5), int(m_height / 1.5)),
                         interpolation=cv.INTER_AREA)

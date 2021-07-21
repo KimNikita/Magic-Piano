@@ -13,7 +13,6 @@ class Game:
     detector = None
     monitor = None
     success, img = None, None
-    height, width = None, None
     piano = None
     spath = None
     turn = None
@@ -25,15 +24,12 @@ class Game:
     def __init__(self, height, width, path, turn=1, octave=3, key_num=14):
         self.turn = turn
         self.detector = HandDetector()
-
-        self.height, self.width = height, width
-
-        self.piano = Piano(int(self.width / 50), int(self.height / 50),
-                           self.width, int(self.height / 2))
+        self.piano = Piano(int(width / 50), int(height / 50),
+                           width, int(height / 2))
         self.spath = path
         self.piano.key_generator(self.spath, octave, key_num)
         self.pianolen = len(self.piano.keys)
-        self.indent = int(self.width / 50)
+        self.indent = int(width / 50)
         self.pressed = {}
         for key in self.piano.keys:
             self.pressed[key] = False
