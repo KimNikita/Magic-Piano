@@ -5,7 +5,9 @@ import math
 from modules.hand_tracking import HandDetector
 from modules.piano_key import PianoKey
 from modules.piano import Piano
+
 sys.path.append("..")
+
 
 class Game:
     detector = None
@@ -20,13 +22,14 @@ class Game:
     indent = None
     pressed = None
 
-    def __init__(self, cap, path, turn=1, octave=3, key_num=14):
+    def __init__(self, height, width, path, turn=1, octave=3, key_num=14):
         self.turn = turn
         self.detector = HandDetector()
-        self.success, self.img = cap.read()
-        self.height, self.width = self.img.shape[:2]
+
+        self.height, self.width = height, width
+
         self.piano = Piano(int(self.width / 50), int(self.height / 50),
-                      self.width, int(self.height / 2))
+                           self.width, int(self.height / 2))
         self.spath = path
         self.piano.key_generator(self.spath, octave, key_num)
         self.pianolen = len(self.piano.keys)
@@ -64,7 +67,8 @@ class Game:
                             (finger[0][1] // hashs) * self.piano.indent) // hashs
                 if -1 < key_hash < self.pianolen:
                     if finger[0][2] > finger[1][2] or math.sqrt(
-                            (finger[0][1] - finger[1][1]) ** 2 + (finger[0][2] - finger[1][2]) ** 2) < self.cond + self.balance(finger[0][0]):
+                            (finger[0][1] - finger[1][1]) ** 2 + (
+                                    finger[0][2] - finger[1][2]) ** 2) < self.cond + self.balance(finger[0][0]):
                         self.piano.press_key(key_hash)
                         self.pressed[key_hash] = True
 
@@ -75,4 +79,4 @@ class Game:
                 self.pressed[key] = False
 
         img = self.piano.draw(img)
-        return(img)
+        return img
