@@ -3,6 +3,7 @@ import cv2 as cv
 import math
 import os
 import sys
+import numpy as np
 
 sys.path.append("..")
 
@@ -18,20 +19,31 @@ m_height = monitor[0].height
 
 spath = os.path.abspath('')[:-7] + '\\sounds'
 
+is_Settings = False
+octave3 = False
+octave4 = False
+octave5 = False
+key_num_7 = False
+key_num_14 = False
+or_camera_1 = False
+or_camera_2 = False
+
 
 class Settings_Window(QtWidgets.QWidget):
     def __init__(self):
         super(Settings_Window, self).__init__()
 
-        self.groupBox3 = QtWidgets.QGroupBox("&Additional settings")
-        self.confirm = QtWidgets.QPushButton('confirm')
-        self.radio11 = QtWidgets.QRadioButton("&C3")
         self.groupBox1 = QtWidgets.QGroupBox("Octave")
+        self.radio11 = QtWidgets.QRadioButton("&C3")
         self.radio12 = QtWidgets.QRadioButton("&C4")
         self.radio13 = QtWidgets.QRadioButton("&C5")
         self.groupBox2 = QtWidgets.QGroupBox("Number of keys")
         self.radio21 = QtWidgets.QRadioButton("7")
         self.radio22 = QtWidgets.QRadioButton("14")
+        self.groupBox3 = QtWidgets.QGroupBox("&Camera orientation")
+        self.radio31 = QtWidgets.QRadioButton("-1")
+        self.radio32 = QtWidgets.QRadioButton("1")
+        self.confirm = QtWidgets.QPushButton('confirm')
         self.settings_ui()
 
     def settings_ui(self):
@@ -68,6 +80,14 @@ class Settings_Window(QtWidgets.QWidget):
         vbox2.addStretch(1)
         self.groupBox2.setLayout(vbox2)
 
+        self.radio32.setChecked(True)
+        vbox3 = QtWidgets.QHBoxLayout()
+        vbox3.addWidget(self.radio31)
+        vbox3.addWidget(self.radio32)
+
+        vbox3.addStretch(1)
+        self.groupBox3.setLayout(vbox3)
+
         grid.addWidget(self.groupBox1, 0, 0)
         grid.addWidget(self.groupBox2, 0, 1)
         grid.addWidget(self.groupBox3, 1, 0, 1, 2)
@@ -82,18 +102,40 @@ class Settings_Window(QtWidgets.QWidget):
 
     def radioButtonClicked(self):
         if self.radio13.isChecked():
+
+            print(self.radio13.text())
+
             self.groupBox2.setEnabled(True)
-            self.radio21.setEnabled(False)
-            self.radio22.setChecked(True)
+            self.radio22.setEnabled(False)
+            self.radio21.setChecked(True)
         else:
             self.groupBox2.setEnabled(True)
-            self.radio21.setEnabled(True)
+            self.radio22.setEnabled(True)
 
     # глупая защита
 
     def win_close(self):
         if (self.radio11.isChecked() or self.radio12.isChecked() or self.radio13.isChecked()) and (
                 self.radio21.isChecked() or self.radio22.isChecked()):
+
+            global octave3, octave4, octave5, key_num_7, key_num_14, is_Settings, or_camera_1, or_camera_2
+            if self.radio11.isChecked():
+                octave3 = True
+            elif self.radio12.isChecked():
+                octave4 = True
+            else:
+                octave5 = True
+            if self.radio21.isChecked():
+                key_num_7 = True
+            else:
+                key_num_14 = True
+            if self.radio31.isChecked():
+                or_camera_1 = True
+            else:
+                or_camera_2 = True
+
+            is_Settings = True
+
             self.close()
         else:
             QtWidgets.QMessageBox.warning(self, "Attention", "Please select all settings!")
@@ -113,6 +155,10 @@ class VideoPlayer(QtWidgets.QWidget):
         self.setup_camera(fps)
 
         self.fps = fps
+
+        self.ret, self.img = self.camera_capture.read()
+        self.height, self.width = self.img.shape[:2]
+        self.pgame = Game(self.height, self.width, spath)
 
         # в Qt label работает для вывода изображения
         self.frame_label = QtWidgets.QLabel()
@@ -187,6 +233,13 @@ class VideoPlayer(QtWidgets.QWidget):
         self.play_pause_buttom.setText('Play')
         self.frame_timer.stop()
 
+        img = np.random.randint(255, size=(
+            int(monitor[0].height / 1.5), int(monitor[0].width / 1.5), 3), dtype=np.uint8)
+
+        image = qimage2ndarray.array2qimage(img)
+
+        self.frame_label.setPixmap(QtGui.QPixmap.fromImage(image))
+
         self.w2.show()
 
     def play_pause(self):
@@ -221,16 +274,47 @@ class VideoPlayer(QtWidgets.QWidget):
         if not self.video:
             ret, img = self.camera_capture.read()
         else:
-            ret, img = self.video_capture.read()
+            return False
+            # пианино уменьшается
+            # ret, img = self.video_capture.read()
 
-        if not ret:
+        if not self.ret:
             return False
 
         # if not self.video:
-        height, width = img.shape[:2]
-        pgame = Game(height, width, spath)
 
-        img = pgame.render(img)
+        global is_Settings, octave3, octave4, octave5, key_num_7, key_num_14, or_camera_1, or_camera_2
+        if is_Settings:
+            octave = None
+            key_num = None
+            turn = 1
+
+            if octave3:
+                octave3 = False
+                octave = 3
+            elif octave4:
+                octave4 = False
+                octave = 4
+            else:
+                octave5 = False
+                octave = 5
+
+            if key_num_7:
+                key_num_7 = False
+                key_num = 7
+            else:
+                key_num_14 = False
+                key_num = 14
+            if or_camera_1:
+                turn = -1
+            else:
+                turn = 1
+
+            self.pgame = Game(self.height, self.width, spath, turn, octave, key_num)
+
+            is_Settings = False
+
+        img = self.pgame.render(img)
 
         img = cv.resize(img, (int(m_width / 1.5), int(m_height / 1.5)),
                         interpolation=cv.INTER_AREA)
