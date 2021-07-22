@@ -10,6 +10,7 @@ class Piano:
     right = None
     indent = None
     keys = {}
+    tstart = None
 
     def __init__(self, x1, y1, x2, y2, keys=None, image_height=None, image_width=None):
         if image_height:
@@ -27,7 +28,7 @@ class Piano:
 
     def draw(self, img):
         for key in self.keys:
-            img = self.keys[key].draw_key(img)
+            img = self.keys[key].draw_key(img, self.tstart)
         return img
 
     def press_key(self, id):
@@ -45,6 +46,7 @@ class Piano:
     def key_generator(self, spath, octave, key_num):
         octave_max = 5
         octave_min = 3
+        self.tstart = 90/key_num
         if ((octave_max - octave + 1) * 7 < key_num or octave < octave_min):
             octave = octave_min
             key_num = 7
