@@ -267,48 +267,48 @@ class VideoPlayer(QtWidgets.QWidget):
 
         if not self.video:
             ret, img = self.camera_capture.read()
+            global is_Settings, octave3, octave4, octave5, key_num_7, key_num_14, or_camera_1, or_camera_2
+            if is_Settings:
+                octave = None
+                key_num = None
+                turn = 1
+
+                if octave3:
+                    octave3 = False
+                    octave = 3
+                elif octave4:
+                    octave4 = False
+                    octave = 4
+                else:
+                    octave5 = False
+                    octave = 5
+
+                if key_num_7:
+                    key_num_7 = False
+                    key_num = 7
+                else:
+                    key_num_14 = False
+                    key_num = 14
+                if or_camera_1:
+                    or_camera_1 = False
+                    turn = -1
+                else:
+                    or_camera_2 = False
+                    turn = 1
+
+                self.pgame = Game(self.height, self.width, spath, turn, octave, key_num)
+
+                is_Settings = False
+
         else:
-            # пианино уменьшается
             ret, img = self.video_capture.read()
+            img = cv.resize(img, (640, 480),
+                            interpolation=cv.INTER_AREA)
 
         if not self.ret:
             return False
 
         # if not self.video:
-
-        global is_Settings, octave3, octave4, octave5, key_num_7, key_num_14, or_camera_1, or_camera_2
-        if is_Settings:
-            octave = None
-            key_num = None
-            turn = 1
-
-            if octave3:
-                octave3 = False
-                octave = 3
-            elif octave4:
-                octave4 = False
-                octave = 4
-            else:
-                octave5 = False
-                octave = 5
-
-            if key_num_7:
-                key_num_7 = False
-                key_num = 7
-            else:
-                key_num_14 = False
-                key_num = 14
-            if or_camera_1:
-                or_camera_1 = False
-                turn = -1
-            else:
-                or_camera_2 = False
-                turn = 1
-
-            self.pgame = Game(self.height, self.width, spath, turn, octave, key_num)
-
-            is_Settings = False
-
         img = self.pgame.render(img)
 
         img = cv.resize(img, (int(m_width / 1.5), int(m_height / 1.5)),
