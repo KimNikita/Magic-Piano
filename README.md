@@ -6,7 +6,7 @@ Magic Piano is a computer vision-based project that allows you to play a virtual
 
 ### 1. Hand detection
 
-We get a frame from the camera and use Open-CV Hand Detector to recognize hands and get information about key points of the palm.
+We get a frame from the camera using Open-CV and use MediaPipe Hand Detector to recognize hands and get information about key points of the palm.
 
 ![](src/docs/hand.png)
 
@@ -30,4 +30,11 @@ Example:
 cd C:/Users
 git clone https://github.com/DumDereDum/Magic-Piano.git
 ```
-Then, go inside the folder "Magic-Piano" and run .exe file
+Then, install the necessary libraries with command:
+```bash
+pip install -r requirements.txt
+```
+Go inside the folder "Magic-Piano" and run project using "nameexewecreate".exe or command:
+```bash
+python "namepywecreate".py
+```
