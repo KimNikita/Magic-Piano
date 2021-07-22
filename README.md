@@ -23,3 +23,11 @@ At the last stage, we display the frame on the screen of the GUI created using P
 ![](src/docs/gui.png)
 
 ## How to use
+
+First, you need to clone this repository to a folder that does not have Russian letters in the path.
+Example:
+```bash
+cd C:/Users
+git clone https://github.com/DumDereDum/Magic-Piano.git
+```
+Then, go inside the folder "Magic-Piano" and run .exe file
