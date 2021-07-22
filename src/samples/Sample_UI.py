@@ -302,8 +302,11 @@ class VideoPlayer(QtWidgets.QWidget):
 
         else:
             ret, img = self.video_capture.read()
-            img = cv.resize(img, (640, 480),
-                            interpolation=cv.INTER_AREA)
+            if img is None:
+                return
+            else:
+                img = cv.resize(img, (640, 480),
+                                interpolation=cv.INTER_AREA)
 
         if not self.ret:
             return False
