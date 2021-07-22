@@ -41,9 +41,9 @@ class Game:
             return -2
         return 0
 
-    def render(self, img):
+    def render(self, img, debug_mode = True):
         img = cv.flip(img, self.turn)
-        left_points, right_points = self.detector.findPosition(img, True)
+        left_points, right_points = self.detector.findPosition(img, debug_mode)
         fingers = []
         zone = self.piano.get_key_shape(0)[0]
         hashs = self.piano.get_key_shape(0)[1]
