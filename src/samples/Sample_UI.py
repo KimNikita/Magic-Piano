@@ -149,7 +149,7 @@ class VideoPlayer(QtWidgets.QWidget):
 
         self.w2 = Settings_Window()
         self.camera_capture = cv.VideoCapture(0, cv.CAP_DSHOW)
-        # self.video_capture = cv.VideoCapture()
+        self.video_capture = cv.VideoCapture()
 
         self.frame_timer = QtCore.QTimer()
         self.setup_camera(fps)
@@ -164,14 +164,14 @@ class VideoPlayer(QtWidgets.QWidget):
         self.frame_label = QtWidgets.QLabel()
         self.quit_buttom = QtWidgets.QPushButton('Quit')
         self.play_pause_buttom = QtWidgets.QPushButton('Pause')
-        # self.camera_video_buttom = QtWidgets.QPushButton('Switch to video')
+        self.camera_video_buttom = QtWidgets.QPushButton('Switch to video')
 
         self.main_layout = QtWidgets.QGridLayout()
 
         self.setup_ui()
 
         self.play_pause_buttom.clicked.connect(self.play_pause)
-        # self.camera_video_buttom.clicked.connect(self.camera_video)
+        self.camera_video_buttom.clicked.connect(self.camera_video)
 
     def setup_ui(self):
 
@@ -193,8 +193,8 @@ class VideoPlayer(QtWidgets.QWidget):
 
         # геолокация 1-2 клеточки 1-размер по высоте 2-по ширине
         self.main_layout.addWidget(self.frame_label, 1, 0, 1, 2)
-        self.main_layout.addWidget(self.play_pause_buttom, 2, 0, 1, 2)
-        # self.main_layout.addWidget(self.camera_video_buttom, 2, 1, 1, 1)
+        self.main_layout.addWidget(self.play_pause_buttom, 2, 0, 1, 1)
+        self.main_layout.addWidget(self.camera_video_buttom, 2, 1, 1, 1)
         self.main_layout.addWidget(self.quit_buttom, 3, 0, 1, 2)
 
     def menu_bar(self):
@@ -202,12 +202,6 @@ class VideoPlayer(QtWidgets.QWidget):
         menu = QtWidgets.QMenuBar(self)
         file = menu.addMenu("File")
         # file.addAction("Select video")
-
-        # camera_video = QtWidgets.QAction('Video selection', self)
-        # camera_video.setShortcut('Ctrl+V')
-        #
-        # camera_video.triggered.connect(self.camera_video)
-        # file.addAction(camera_video)
 
         exit = QtWidgets.QAction('Quit', self)
         exit.setShortcut('Ctrl+E')
@@ -251,18 +245,18 @@ class VideoPlayer(QtWidgets.QWidget):
             self.play_pause_buttom.setText('Pause')
         self.pause = not self.pause
 
-    # def camera_video(self):
-    #     if not self.video:
-    #         path = QtWidgets.QFileDialog.getOpenFileName(dir='C:\\', filter='Videos (*.mp4)')
-    #
-    #         if len(path[0]):
-    #             self.video_capture.open(path[0])
-    #             self.camera_video_buttom.setText('Switch to camera')
-    #         else:
-    #             self.camera_video_buttom.setText('Switch to video')
-    #             self.video_capture.release()
-    #
-    #     self.video = not self.video
+    def camera_video(self):
+        if not self.video:
+            path = QtWidgets.QFileDialog.getOpenFileName(dir='C:\\', filter='Videos (*.mp4)')
+
+            if len(path[0]):
+                self.video_capture.open(path[0])
+                self.camera_video_buttom.setText('Switch to camera')
+            else:
+                self.camera_video_buttom.setText('Switch to video')
+                self.video_capture.release()
+
+        self.video = not self.video
 
     def setup_camera(self, fps):
         self.frame_timer.timeout.connect(self.display_video_stream)
@@ -274,9 +268,8 @@ class VideoPlayer(QtWidgets.QWidget):
         if not self.video:
             ret, img = self.camera_capture.read()
         else:
-            return False
             # пианино уменьшается
-            # ret, img = self.video_capture.read()
+            ret, img = self.video_capture.read()
 
         if not self.ret:
             return False
