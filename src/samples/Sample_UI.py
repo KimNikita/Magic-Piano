@@ -28,10 +28,15 @@ key_num_14 = False
 or_camera_1 = False
 or_camera_2 = False
 
+db_mode = False
+
 
 class Settings_Window(QtWidgets.QWidget):
     def __init__(self):
         super(Settings_Window, self).__init__()
+
+        self.debug_mode = QtWidgets.QCheckBox('Debug mode')
+        self.debug_mode.toggle()
 
         self.groupBox1 = QtWidgets.QGroupBox("Octave")
         self.radio11 = QtWidgets.QRadioButton("&C3")
@@ -88,11 +93,12 @@ class Settings_Window(QtWidgets.QWidget):
         vbox3.addStretch(1)
         self.groupBox3.setLayout(vbox3)
 
-        grid.addWidget(self.groupBox1, 0, 0)
-        grid.addWidget(self.groupBox2, 0, 1)
-        grid.addWidget(self.groupBox3, 1, 0, 1, 2)
+        grid.addWidget(self.debug_mode, 0, 0)
+        grid.addWidget(self.groupBox1, 1, 0)
+        grid.addWidget(self.groupBox2, 1, 1)
+        grid.addWidget(self.groupBox3, 2, 0, 1, 2)
 
-        grid.addWidget(self.confirm, 2, 0, 1, 2)
+        grid.addWidget(self.confirm, 3, 0, 1, 2)
 
         self.setLayout(grid)
 
@@ -118,7 +124,7 @@ class Settings_Window(QtWidgets.QWidget):
         if (self.radio11.isChecked() or self.radio12.isChecked() or self.radio13.isChecked()) and (
                 self.radio21.isChecked() or self.radio22.isChecked()):
 
-            global octave3, octave4, octave5, key_num_7, key_num_14, is_Settings, or_camera_1, or_camera_2
+            global octave3, octave4, octave5, key_num_7, key_num_14, is_Settings, or_camera_1, or_camera_2, db_mode
             if self.radio11.isChecked():
                 octave3 = True
             elif self.radio12.isChecked():
@@ -133,6 +139,11 @@ class Settings_Window(QtWidgets.QWidget):
                 or_camera_1 = True
             else:
                 or_camera_2 = True
+            
+            if self.debug_mode.isChecked():
+                db_mode = True
+            else:
+                db_mode = False
 
             is_Settings = True
 
@@ -312,7 +323,7 @@ class VideoPlayer(QtWidgets.QWidget):
             return False
 
         # if not self.video:
-        img = self.pgame.render(img)
+        img = self.pgame.render(img, db_mode)
 
         img = cv.resize(img, (int(m_width / 1.5), int(m_height / 1.5)),
                         interpolation=cv.INTER_AREA)
