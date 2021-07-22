@@ -205,7 +205,7 @@ class VideoPlayer(QtWidgets.QWidget):
 
         # camera_video = QtWidgets.QAction('Video selection', self)
         # camera_video.setShortcut('Ctrl+V')
-
+        #
         # camera_video.triggered.connect(self.camera_video)
         # file.addAction(camera_video)
 
@@ -305,7 +305,6 @@ class VideoPlayer(QtWidgets.QWidget):
             else:
                 key_num_14 = False
                 key_num = 14
-
             if or_camera_1:
                 or_camera_1 = False
                 turn = -1
