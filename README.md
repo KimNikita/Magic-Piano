@@ -8,12 +8,18 @@ Magic Piano is a computer vision-based project that allows you to play a virtual
 
 We get a frame from the camera and use Open-CV Hand Detector to recognize hands and get information about key points of the palm.
 
+![](src/docs/hand.png)
+
 ### 2. Press detection
 
 Next, we draw the piano on frame and use the coordinates of the key points to track the keypress. When pressed, the corresponding sound is played.
 
+![](src/docs/press.png)
+
 ### 3. Displaying
 
 At the last stage, we display the frame on the screen of the GUI created using PyQt5
+
+![](src/docs/gui.png)
 
 ## How to use
