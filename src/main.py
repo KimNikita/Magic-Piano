@@ -21,10 +21,15 @@ def main():
                     level=log.INFO, stream=sys.stdout)
     spath = os.path.abspath('') + '\\sounds'
     cap = cv.VideoCapture(0)
-    pgame = Game(cap, spath)
+
     monitor = get_monitors()
     m_width = monitor[0].width
     m_height = monitor[0].height
+
+    success, img = cap.read()
+    height, width = img.shape[:2]
+    pgame = Game(height, width, spath)
+
     while cap.isOpened():
         success, img = cap.read()
         img = pgame.render(img)
