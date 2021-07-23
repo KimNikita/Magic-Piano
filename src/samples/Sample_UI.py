@@ -169,6 +169,9 @@ class VideoPlayer(QtWidgets.QWidget):
         self.camera_capture = cv.VideoCapture(0, cv.CAP_DSHOW)
         self.video_capture = cv.VideoCapture()
 
+        self.out = cv.VideoWriter('test.avi', cv.VideoWriter_fourcc(*'MJPG'), 20,
+                                  (int(m_width / 1.5), int(m_height / 1.5)))
+
         self.test = cv.VideoCapture(os.path.abspath('')[:-7] + 'music\\a-tisket-a-tasket-c4-c5-11.mp4')
 
         self.frame_timer = QtCore.QTimer()
@@ -327,8 +330,6 @@ class VideoPlayer(QtWidgets.QWidget):
             self.play_pause_buttom.setText('Play')
         else:
             self.frame_timer.start(int(1000 // self.fps))
-            #
-            self.music_timer.start(int(1000 // self.fps))
             self.play_pause_buttom.setText('Pause')
         self.pause = not self.pause
 
@@ -449,6 +450,7 @@ class VideoPlayer(QtWidgets.QWidget):
         img = cv.resize(img, (int(m_width / 1.5), int(m_height / 1.5)),
                         interpolation=cv.INTER_AREA)
 
+        self.out.write(img)
         img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
         image = qimage2ndarray.array2qimage(img)
 
