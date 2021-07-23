@@ -1,10 +1,10 @@
+from modules.hand_tracking import HandDetector
+from modules.piano_key import PianoKey
+from modules.piano import Piano
 import os
 import sys
 import cv2 as cv
 import math
-from modules.hand_tracking import HandDetector
-from modules.piano_key import PianoKey
-from modules.piano import Piano
 
 sys.path.append("..")
 
@@ -19,20 +19,30 @@ class Game:
     cond = 15
     pianolen = None
     indent = None
-    pressed = None
+    hold = None
+    time_codes = {}
 
-    def __init__(self, height, width, path, turn=1, octave=3, key_num=14):
+    def __init__(self, height, width, path, turn = 1, octave = 3, key_num = 7, tpath=None):
         self.turn = turn
         self.detector = HandDetector()
+        if tpath:
+            self.time_codes = {}
+            with open(tpath, 'r') as p:
+                times = p.read().split('\n')
+            i = 0
+            for time in times:
+                codes = time.split(' ')
+                self.time_codes[i] = codes[1:]
+                i += 1
         self.piano = Piano(int(width / 50), int(height / 50),
                            width, int(height / 2))
         self.spath = path
         self.piano.key_generator(self.spath, octave, key_num)
         self.pianolen = len(self.piano.keys)
         self.indent = int(width / 50)
-        self.pressed = {}
+        self.hold = {}
         for key in self.piano.keys:
-            self.pressed[key] = False
+            self.hold[key] = [False, False]
 
     def balance(self, id):
         if id == 4:
@@ -41,7 +51,11 @@ class Game:
             return -2
         return 0
 
-    def render(self, img, debug_mode = True):
+    def render(self, img, time, debug_mode=True):
+        miss = 0
+        ismiss = True
+        maxtime = time + 0.2
+        mintime = time - 0.1
         img = cv.flip(img, self.turn)
         left_points, right_points = self.detector.findPosition(img, debug_mode)
         fingers = []
@@ -64,15 +78,34 @@ class Game:
                 if -1 < key_hash < self.pianolen:
                     if finger[0][2] > finger[1][2] or math.sqrt(
                             (finger[0][1] - finger[1][1]) ** 2 + (
-                                    finger[0][2] - finger[1][2]) ** 2) < self.cond + self.balance(finger[0][0]):
+                                finger[0][2] - finger[1][2]) ** 2) < self.cond + self.balance(finger[0][0]):
                         self.piano.press_key(key_hash)
-                        self.pressed[key_hash] = True
+                        self.hold[key_hash][1] = True
+                        if self.hold[key_hash][0] == False:
+                            if self.time_codes:
+                                for code in self.time_codes[key_hash]:
+                                    if code == '':
+                                        break
+                                    if mintime < float(code) < maxtime:
+                                        ismiss = False
+                                if ismiss:
+                                    miss += 1
+                                else:
+                                    ismiss = True
 
         for key in self.piano.keys:
-            if not self.pressed[key]:
+            if self.hold[key][0] and not self.hold[key][1]:
+                self.hold[key][0] = False
+                self.piano.unpress_key(key)
+            elif not self.hold[key][0] and self.hold[key][1]:
+                self.hold[key][0] = True
+                self.hold[key][1] = False
+            elif not self.hold[key][0] and not self.hold[key][1]:
                 self.piano.unpress_key(key)
             else:
-                self.pressed[key] = False
+                self.hold[key][1] = False
+
+
 
         img = self.piano.draw(img)
-        return img
+        return img, miss
