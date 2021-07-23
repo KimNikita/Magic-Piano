@@ -58,4 +58,6 @@ class PianoKey:
         color = (0, 255, 0)
         cv.putText(img, self.note, (x + int(tstart), int(y + self.height * 0.2)),
                    font, int(self.width * 0.046), color, 2)
+        #cv.putText(img, text, (x + int(tstart), int(y + self.height * 0.4)),
+         #          font, int(self.width * 0.046), color, 2)
         return img
