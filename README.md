@@ -1,6 +1,6 @@
 # Magic-Piano
 
-Magic Piano is a computer vision-based project that allows you to play a virtual piano using hand recognition through a camera.
+Magic Piano is a computer vision-based project from Intel Summer Camp 2021 that allows you to play a virtual piano using hand recognition through a camera.
 
 ## Pipeline
 
@@ -36,5 +36,5 @@ pip install -r requirements.txt
 ```
 Go inside the folder "Magic-Piano" and run project using "nameexewecreate".exe or command:
 ```bash
-python "namepywecreate".py
+python src/main.py
 ```
