@@ -4,7 +4,8 @@ import math
 import os
 import sys
 import numpy as np
-#import time
+from imutils.video import FileVideoStream
+import imutils
 
 sys.path.append("..")
 
@@ -38,8 +39,6 @@ db_mode = True
 time_music = 0
 miss = 0
 time_stop = 0
-timeline = []
-step = 0
 
 class Settings_Window(QtWidgets.QWidget):
     def __init__(self):
@@ -261,8 +260,10 @@ class VideoPlayer(QtWidgets.QWidget):
         self.frame_timer.start(int(1000 // fps))
 
     def select_video_music(self):
-        self.frame_timer.stop()
-        self.play_pause()
+        if not self.pause:
+            self.frame_timer.stop()
+            self.play_pause_buttom.setText('Play')
+            self.pause = True
         self.music.setWindowModality(QtCore.Qt.ApplicationModal)
         self.music.show()
         self.music.atat()
@@ -337,18 +338,16 @@ class MusicPlayer(QtWidgets.QWidget):
 
     pause = False
 
-    def __init__(self, fps=30):
+    def __init__(self):
 
         self.camera_capture = cv.VideoCapture(0, cv.CAP_DSHOW)
-        self.video_capture = cv.VideoCapture()
 
         self.frame_timer = QtCore.QTimer()
         self.music_timer = QtCore.QTimer()
-        self.setup_camera(fps)
+        self.setup_camera()
 
         ret, img = self.camera_capture.read()
         self.height, self.width = img.shape[:2]
-        self.fps = fps
 
         # в Qt label работает для вывода изображения
         self.music_label = QtWidgets.QLabel()
@@ -421,55 +420,37 @@ class MusicPlayer(QtWidgets.QWidget):
         return menu
 
     def atat(self):
-        global miss, time_music, time_stop, timeline, step, score_path
-        miss, time_music, time_stop, step = 0, 0, 24.7, 0
-        timeline = []
-        with open(mpath + 'a-tisket-a-tasket-timeline.txt', 'r') as p:
-            times = p.read().split('\n')
-        for t in times:
-            codes = t.split(' ')
-            timeline.append([codes[0], codes[1]])
         self.music_timer.stop()
         self.frame_timer.stop()
-        self.music_timer.start(int(1000//self.fps))
-        self.frame_timer.start(int(1000 // self.fps))
-        self.video_capture.open(mpath + 'a-tisket-a-tasket-c4-c5-11.mp4')
+        global miss, time_music, time_stop, score_path
+        miss, time_music, time_stop = 0, 0, 24.7
         self.mgame = Game(self.height, self.width, spath, 1, 4, 11, mpath + 'a-tisket-a-tasket-timeline.txt')
+        self.fvs = FileVideoStream(mpath + 'a-tisket-a-tasket-c4-c5-11.mp4').start()
         score_path = mpath + 'a-tisket-a-tasket-score.txt'
+        self.music_timer.start(10) # 10 - норм, 5 - трудно, 1 - unreal
+        self.frame_timer.start(10)
 
     def fj(self):
-        global miss, time_music, time_stop, timeline, step
-        miss, time_music, time_stop, step = 0, 0, 24.7, 0
-        timeline = []
-        with open(mpath + 'frere-jacques-timeline.txt', 'r') as p:
-            times = p.read().split('\n')
-        for t in times:
-            codes = t.split(' ')
-            timeline.append([codes[0], codes[1]])
         self.music_timer.stop()
         self.frame_timer.stop()
-        self.music_timer.start(int(1000//self.fps))
-        self.frame_timer.start(int(1000 // self.fps))
-        self.video_capture.open(mpath + 'frere-jacques-c3-c4-13.mp4')
+        global miss, time_music, time_stop, score_path
+        miss, time_music, time_stop = 0, 0, 24.7
+        self.fvs = FileVideoStream(mpath + 'frere-jacques-c3-c4-13.mp4').start()
         self.mgame = Game(self.height, self.width, spath, 1, 3, 13, mpath + 'frere-jacques-timeline.txt')
         score_path = mpath + 'frere-jacques-score.txt'
-
+        self.music_timer.start(10)
+        self.frame_timer.start(10)
+       
     def lb(self):
-        global miss, time_music, time_stop, timeline, step
-        miss, time_music, time_stop, step = 0, 0, 15.1, 0
-        timeline = []
-        with open(mpath + 'london-bridge-timeline.txt', 'r') as p:
-            times = p.read().split('\n')
-        for t in times:
-            codes = t.split(' ')
-            timeline.append([codes[0], codes[1]])
         self.music_timer.stop()
         self.frame_timer.stop()
-        self.music_timer.start(int(1000//self.fps))
-        self.frame_timer.start(int(1000 // self.fps))
-        self.video_capture.open(mpath + 'london-bridge-c3-c4-11.mp4')
+        global miss, time_music, time_stop, score_path
+        miss, time_music, time_stop = 0, 0, 15.1
+        self.fvs = FileVideoStream(mpath + 'london-bridge-c3-c4-11.mp4').start()
         self.mgame = Game(self.height, self.width, spath, 1, 3, 11, mpath + 'london-bridge-timeline.txt')
         score_path = mpath + 'london-bridge-score.txt'
+        self.music_timer.start(10)
+        self.frame_timer.start(10)
 
     def play_pause(self):
         if not self.pause:
@@ -477,12 +458,12 @@ class MusicPlayer(QtWidgets.QWidget):
             self.frame_timer.stop()
             self.play_pause_buttom.setText('Play')
         else:
-            self.music_timer.start(int(1000//self.fps))
-            self.frame_timer.start(int(1000 // self.fps))
+            self.music_timer.start(10)
+            self.frame_timer.start(10)
             self.play_pause_buttom.setText('Pause')
         self.pause = not self.pause
 
-    def setup_camera(self, fps):
+    def setup_camera(self):
         self.music_timer.timeout.connect(self.music_stream)
         self.frame_timer.timeout.connect(self.camera_stream)
 
@@ -492,24 +473,19 @@ class MusicPlayer(QtWidgets.QWidget):
         self.close()
 
     def music_stream(self):
-        #pTime = time.time()
-        ret, img = self.video_capture.read()
-        #cTime = time.time()
-
-        #fps = 1/(cTime-pTime)
-        #cv.putText(img,str(int(fps)), (10,70), cv.FONT_HERSHEY_PLAIN, 3, (255,0,255), 3)
-        if img is None:
-            return
-        else:
-            img = cv.resize(img, (int(m_width / 1.5), int(m_height / 3.9)),
+        global time_music
+        time_music += 1
+        if self.fvs.more():
+            frame = self.fvs.read()
+            frame = cv.resize(frame, (int(m_width / 1.5), int(m_height / 3.9)),
                         interpolation=cv.INTER_AREA)
-            img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
-            image = qimage2ndarray.array2qimage(img)
+            frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+            image = qimage2ndarray.array2qimage(frame)
             self.music_label.setPixmap(QtGui.QPixmap.fromImage(image))
         
     def camera_stream(self):
-        global time_music, score_path, miss, step
-        if (time_music*self.music_timer.interval())/1000 > time_stop:
+        global time_music, score_path, miss
+        if (time_music*33)/1000 > time_stop:
             self.music_timer.stop()
             self.frame_timer.stop()
             minmiss = 777
@@ -519,15 +495,12 @@ class MusicPlayer(QtWidgets.QWidget):
                 with open(score_path, 'w') as s:
                     s.write(str(miss))
             
-        time_music += 1
         ret, img = self.camera_capture.read()
         if img is None:
             return
         else:
-            img, m = self.mgame.render(img, time_music * self.music_timer.interval() / 1000, db_mode)
+            img, m = self.mgame.render(img, (time_music * 33) / 1000, db_mode)
             miss += m
-            if time_music * self.music_timer.interval() / 1000 > float(timeline[step][1]):
-                step += 1
             cv.putText(img, 'Number of misses : {}'.format(str(miss)), (50, 300),
                        cv.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), 3)
             with open(score_path, 'r') as s:

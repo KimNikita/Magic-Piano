@@ -27,13 +27,21 @@ class Game:
         self.detector = HandDetector()
         if tpath:
             self.time_codes = {}
+            octa = octave
+            notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
+            div = key_num // 7
+            mod = key_num % 7
+            for i in range(div):
+                for j in range(7):
+                    self.time_codes[notes[j] + str(octa)] = []
+                octa += 1
+            for i in range(mod):
+                self.time_codes[notes[i] + str(octa)] = []
             with open(tpath, 'r') as p:
                 times = p.read().split('\n')
-            i = 0
-            for time in times:
-                codes = time.split(' ')
-                self.time_codes[i] = codes[1:]
-                i += 1
+                for time in times:
+                    codes = time.split(' ')
+                    self.time_codes[codes[0]].append(codes[1])
         self.piano = Piano(int(width / 50), int(height / 50),
                            width, int(height / 2))
         self.spath = path
@@ -54,8 +62,6 @@ class Game:
     def render(self, img, time, debug_mode=True):
         miss = 0
         ismiss = True
-        maxtime = time + 0.2
-        mintime = time - 0.1
         img = cv.flip(img, self.turn)
         left_points, right_points = self.detector.findPosition(img, debug_mode)
         fingers = []
@@ -83,10 +89,10 @@ class Game:
                         self.hold[key_hash][1] = True
                         if self.hold[key_hash][0] == False:
                             if self.time_codes:
-                                for code in self.time_codes[key_hash]:
+                                for code in self.time_codes[self.piano.keys[key_hash].note]:
                                     if code == '':
                                         break
-                                    if mintime < float(code) < maxtime:
+                                    if float(code) - 0.05 < time < float(code) + 0.05:
                                         ismiss = False
                                 if ismiss:
                                     miss += 1
