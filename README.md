@@ -34,7 +34,7 @@ Then, install the necessary libraries with command:
 ```bash
 pip install -r requirements.txt
 ```
-Go inside the folder "Magic-Piano" and run project using main.exe or command:
+Go inside the folder "Magic-Piano" and run project using "nameexewecreate".exe or command:
 ```bash
 python src/main.py
 ```
