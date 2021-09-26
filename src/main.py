@@ -1,45 +1,525 @@
 from screeninfo import get_monitors
-from modules.game_func import Game
 import cv2 as cv
-import logging as log
+import math
 import os
 import sys
+import numpy as np
+from imutils.video import FileVideoStream
+import imutils
 
 sys.path.append("..")
 
+from PySide2 import QtCore, QtGui, QtWidgets
+import qimage2ndarray
 
-def balance(id):
-    if id == 4:
-        return 6
-    elif id == 20:
-        return -2
-    return 0
+from modules.game_func import Game
+
+monitor = get_monitors()
+
+m_width = monitor[0].width
+m_height = monitor[0].height
+
+# os.path.abspath('') ВОЗВРАЩАЕТ ПУТЬ ДО ТОГО МЕСТА ОТКУДА ЗАПУЩЕНО (РАБОТАЕТ ЕСЛИ ЗАПУСКАТЬ ВОТ ТАК: C:\Magic-Piano\src> python main.py)
+# В ПРИНЦИПЕ ВСЕ СЭМПЛЫ ТОЖЕ РАБОТАЮТ ЕСЛИ ЗАПУСКАТЬ ИХ ИЗ C:\Magic-Piano\src>
+spath = os.path.abspath('') + '\\sounds'
+
+mpath = os.path.abspath('') + '\\music\\'
+
+is_Settings = False
+octave3 = False
+octave4 = False
+octave5 = False
+key_num_7 = False
+key_num_14 = False
+or_camera_1 = False
+or_camera_2 = False
+
+score_path = None
+db_mode = True
+time_music = 0
+miss = 0
+time_stop = 0
+
+class Settings_Window(QtWidgets.QWidget):
+    def __init__(self):
+        super(Settings_Window, self).__init__()
+
+        self.debug_mode = QtWidgets.QCheckBox('Debug mode')
+        self.debug_mode.toggle()
+
+        self.groupBox1 = QtWidgets.QGroupBox("Octave")
+        self.radio11 = QtWidgets.QRadioButton("&C3")
+        self.radio12 = QtWidgets.QRadioButton("&C4")
+        self.radio13 = QtWidgets.QRadioButton("&C5")
+        self.groupBox2 = QtWidgets.QGroupBox("Number of keys")
+        self.radio21 = QtWidgets.QRadioButton("7")
+        self.radio22 = QtWidgets.QRadioButton("14")
+        self.groupBox3 = QtWidgets.QGroupBox("&Camera orientation")
+        self.radio31 = QtWidgets.QRadioButton("Above User")
+        self.radio32 = QtWidgets.QRadioButton("On User")
+        self.confirm = QtWidgets.QPushButton('confirm')
+        self.settings_ui()
+
+    def settings_ui(self):
+
+        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowCloseButtonHint)
+        self.setWindowTitle('Settings')
+
+        grid = QtWidgets.QGridLayout()
+
+        self.groupBox1.setFont(QtGui.QFont("Sanserif", 14))
+
+        # radio11.setChecked(True)
+
+        vbox1 = QtWidgets.QVBoxLayout()
+        vbox1.addWidget(self.radio11)
+        vbox1.addWidget(self.radio12)
+        vbox1.addWidget(self.radio13)
+
+        vbox1.addStretch(1)
+        self.groupBox1.setLayout(vbox1)
+
+        self.groupBox2.setFont(QtGui.QFont("Sanserif", 14))
+
+        vbox2 = QtWidgets.QVBoxLayout()
+        vbox2.addWidget(self.radio21)
+        vbox2.addWidget(self.radio22)
+
+        self.groupBox2.setEnabled(False)
+
+        self.radio11.clicked.connect(self.radioButtonClicked)
+        self.radio12.clicked.connect(self.radioButtonClicked)
+        self.radio13.clicked.connect(self.radioButtonClicked)
+
+        vbox2.addStretch(1)
+        self.groupBox2.setLayout(vbox2)
+
+        self.radio32.setChecked(True)
+        vbox3 = QtWidgets.QHBoxLayout()
+        vbox3.addWidget(self.radio31)
+        vbox3.addWidget(self.radio32)
+
+        vbox3.addStretch(1)
+        self.groupBox3.setLayout(vbox3)
+
+        grid.addWidget(self.debug_mode, 0, 0)
+        grid.addWidget(self.groupBox1, 1, 0)
+        grid.addWidget(self.groupBox2, 1, 1)
+        grid.addWidget(self.groupBox3, 2, 0, 1, 2)
+
+        grid.addWidget(self.confirm, 3, 0, 1, 2)
+
+        self.setLayout(grid)
+
+        self.resize(400, 300)
+
+        self.confirm.clicked.connect(self.win_close)
+
+    def radioButtonClicked(self):
+        if self.radio13.isChecked():
+
+            print(self.radio13.text())
+
+            self.groupBox2.setEnabled(True)
+            self.radio22.setEnabled(False)
+            self.radio21.setChecked(True)
+        else:
+            self.groupBox2.setEnabled(True)
+            self.radio22.setEnabled(True)
+
+    def win_close(self):
+        if (self.radio11.isChecked() or self.radio12.isChecked() or self.radio13.isChecked()) and (
+                self.radio21.isChecked() or self.radio22.isChecked()):
+
+            global octave3, octave4, octave5, key_num_7, key_num_14, is_Settings, or_camera_1, or_camera_2, db_mode
+            if self.radio11.isChecked():
+                octave3 = True
+            elif self.radio12.isChecked():
+                octave4 = True
+            else:
+                octave5 = True
+            if self.radio21.isChecked():
+                key_num_7 = True
+            else:
+                key_num_14 = True
+            if self.radio31.isChecked():
+                or_camera_1 = True
+            else:
+                or_camera_2 = True
+
+            if self.debug_mode.isChecked():
+                db_mode = True
+            else:
+                db_mode = False
+
+            is_Settings = True
+
+            self.close()
+        else:
+            QtWidgets.QMessageBox.warning(self, "Attention", "Please select all settings!")
 
 
-def main():
-    log.basicConfig(format='[ %(levelname)s ] %(message)s',
-                    level=log.INFO, stream=sys.stdout)
-    spath = os.path.abspath('') + '\\sounds'
-    cap = cv.VideoCapture(0)
+class VideoPlayer(QtWidgets.QWidget):
 
-    monitor = get_monitors()
-    m_width = monitor[0].width
-    m_height = monitor[0].height
+    pause = False
 
-    success, img = cap.read()
-    height, width = img.shape[:2]
-    pgame = Game(height, width, spath)
+    def __init__(self, fps=30):
 
-    while cap.isOpened():
-        success, img = cap.read()
-        img = pgame.render(img)
+        self.music = MusicPlayer()
+        self.w2 = Settings_Window()
+        self.camera_capture = cv.VideoCapture(0, cv.CAP_DSHOW)
+
+        self.frame_timer = QtCore.QTimer()
+        self.setup_camera(fps)
+
+        self.fps = fps
+
+        ret, img = self.camera_capture.read()
+        self.height, self.width = img.shape[:2]
+        self.pgame = Game(self.height, self.width, spath)
+
+        # в Qt label работает для вывода изображения
+        self.frame_label = QtWidgets.QLabel()
+        self.quit_buttom = QtWidgets.QPushButton('Quit')
+        self.play_pause_buttom = QtWidgets.QPushButton('Pause')
+        self.switch_to_music = QtWidgets.QPushButton('Switch to music')
+
+        self.main_layout = QtWidgets.QGridLayout()
+
+        self.setup_ui()
+
+        # передали адрес функции
+        self.quit_buttom.clicked.connect(self.close_win)
+        self.play_pause_buttom.clicked.connect(self.play_pause)
+        self.switch_to_music.clicked.connect(self.select_video_music)
+
+    def setup_ui(self):
+
+        QtWidgets.QWidget.__init__(self)
+        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowCloseButtonHint)
+        self.move(m_width // 6, m_height // 12)
+        self.setWindowTitle('Magic Piano')
+        self.setFixedSize(self.sizeHint())
+
+        self.setLayout(self.main_layout)
+
+        QtWidgets.QToolTip.setFont(QtGui.QFont('Arial', 8))
+        self.quit_buttom.setToolTip('<b>Click here to exit the app</b>')
+
+        self.main_layout.addWidget(self.menu_bar(), 0, 0, 1, 2)
+
+        self.switch_to_music.setStyleSheet('border-style: solid; border-width: 3px; border-color: black;')
+        self.play_pause_buttom.setStyleSheet('border-style: solid; border-width: 3px; border-color: black;')
+        self.quit_buttom.setStyleSheet('border-style: solid; border-width: 3px; border-color: red;')
+
+        self.switch_to_music.setFont(QtGui.QFont('Arial', 20, QtGui.QFont.Bold))
+        self.play_pause_buttom.setFont(QtGui.QFont('Arial', 20, QtGui.QFont.Bold))
+        self.quit_buttom.setFont(QtGui.QFont('Arial', 20, QtGui.QFont.Bold))
+        
+        # геолокация 1-2 клеточки 1-размер по высоте 2-по ширине
+        self.main_layout.addWidget(self.frame_label, 2, 0, 1, 2)
+        self.main_layout.addWidget(self.play_pause_buttom, 3, 0, 1, 1)
+        self.main_layout.addWidget(self.switch_to_music, 3, 1, 1, 1)
+        self.main_layout.addWidget(self.quit_buttom, 4, 0, 1, 2)
+
+    def menu_bar(self):
+
+        menu = QtWidgets.QMenuBar(self)
+        file = menu.addMenu("File")
+
+        exit = QtWidgets.QAction('Quit', self)
+        exit.setShortcut('Ctrl+E')
+        exit.triggered.connect(self.close_win)
+        file.addAction(exit)
+
+        edit = menu.addMenu("Edit")
+
+        settings = QtWidgets.QAction('Settings', self)
+        settings.setShortcut('Ctrl+R')
+        settings.triggered.connect(self.show_window_2)
+
+        edit.addAction(settings)
+
+        return menu
+
+    def show_window_2(self):
+        self.w2.setWindowModality(QtCore.Qt.ApplicationModal)
+        self.w2.show()
+
+    def play_pause(self):
+        if not self.pause:
+            self.frame_timer.stop()
+            self.play_pause_buttom.setText('Play')
+        else:
+            self.frame_timer.start(int(1000 // self.fps))
+            self.play_pause_buttom.setText('Pause')
+        self.pause = not self.pause
+
+    def setup_camera(self, fps):
+        self.frame_timer.timeout.connect(self.display_video_stream)
+        self.frame_timer.start(int(1000 // fps))
+
+    def select_video_music(self):
+        if not self.pause:
+            self.frame_timer.stop()
+            self.play_pause_buttom.setText('Play')
+            self.pause = True
+        self.music.setWindowModality(QtCore.Qt.ApplicationModal)
+        self.music.show()
+        self.music.atat()
+
+    def display_video_stream(self):
+        ret, img = self.camera_capture.read()
+        global is_Settings, octave3, octave4, octave5, key_num_7, key_num_14, or_camera_1, or_camera_2
+        if is_Settings:
+            octave = None
+            key_num = None
+            turn = 1
+            if octave3:
+                octave3 = False
+                octave = 3
+            elif octave4:
+                octave4 = False
+                octave = 4
+            else:
+                octave5 = False
+                octave = 5
+            if key_num_7:
+                key_num_7 = False
+                key_num = 7
+            else:
+                key_num_14 = False
+                key_num = 14
+            if or_camera_1:
+                or_camera_1 = False
+                turn = -1
+            else:
+                or_camera_2 = False
+                turn = 1
+            self.pgame = Game(self.height, self.width, spath, turn, octave, key_num)
+            is_Settings = False
+
+        if not ret:
+            return False
+
+        img, miss = self.pgame.render(img, 0, db_mode)
+
         img = cv.resize(img, (int(m_width / 1.5), int(m_height / 1.5)),
                         interpolation=cv.INTER_AREA)
-        cv.imshow("Image", img)
 
-        if cv.waitKey(1) & 0xFF == ord('q'):
-            break
+        img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+        image = qimage2ndarray.array2qimage(img)
 
+        self.frame_label.setPixmap(QtGui.QPixmap.fromImage(image))
+
+    def close_win(self, event):
+        f = False
+        if not self.pause:
+            self.frame_timer.stop()
+            self.play_pause_buttom.setText('Pause')
+            self.pause = True
+            f = True
+
+        reply = QtWidgets.QMessageBox.question(self, 'Message', 'Are you sure to quit?',
+                                               QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                               QtWidgets.QMessageBox.No)
+
+        if reply == QtWidgets.QMessageBox.Yes:
+            cv.destroyAllWindows()
+            self.camera_capture.release()
+            self.close()
+        if f:
+            self.frame_timer.start(int(1000 // self.fps))
+            self.pause = False
+        return
+
+
+class MusicPlayer(QtWidgets.QWidget):
+
+    pause = False
+
+    def __init__(self):
+
+        self.camera_capture = cv.VideoCapture(0, cv.CAP_DSHOW)
+
+        self.frame_timer = QtCore.QTimer()
+        self.music_timer = QtCore.QTimer()
+        self.setup_camera()
+
+        ret, img = self.camera_capture.read()
+        self.height, self.width = img.shape[:2]
+
+        # в Qt label работает для вывода изображения
+        self.music_label = QtWidgets.QLabel()
+        self.frame_label = QtWidgets.QLabel()
+        self.play_pause_buttom = QtWidgets.QPushButton('Pause')
+        self.switch_to_free = QtWidgets.QPushButton('Switch to free game')
+
+        self.main_layout = QtWidgets.QGridLayout()
+
+        self.setup_ui()
+
+        # передали адрес функции
+        self.play_pause_buttom.clicked.connect(self.play_pause)
+        self.switch_to_free.clicked.connect(self.go_back)
+
+    def setup_ui(self):
+
+        QtWidgets.QWidget.__init__(self)
+        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowCloseButtonHint)
+        self.move(m_width // 6, m_height // 12)
+        self.setWindowTitle('Magic Piano')
+        self.setFixedSize(self.sizeHint())
+
+        self.setLayout(self.main_layout)
+
+        QtWidgets.QToolTip.setFont(QtGui.QFont('Arial', 8))
+
+        self.main_layout.addWidget(self.menu_bar(), 0, 0, 1, 2)
+
+        self.switch_to_free.setStyleSheet('border-style: solid; border-width: 3px; border-color: black;')
+        self.play_pause_buttom.setStyleSheet('border-style: solid; border-width: 3px; border-color: black;')
+
+        self.switch_to_free.setFont(QtGui.QFont('Arial', 20, QtGui.QFont.Bold))
+        self.play_pause_buttom.setFont(QtGui.QFont('Arial', 20, QtGui.QFont.Bold))
+        
+        # геолокация 1-2 клеточки 1-размер по высоте 2-по ширине
+        self.main_layout.addWidget(self.music_label, 2, 0, 1, 2)
+        self.main_layout.addWidget(self.frame_label, 3, 0, 1, 2)
+        self.main_layout.addWidget(self.play_pause_buttom, 4, 0, 1, 1)
+        self.main_layout.addWidget(self.switch_to_free, 4, 1, 1, 1)
+
+    def menu_bar(self):
+
+        menu = QtWidgets.QMenuBar(self)
+        file = menu.addMenu("File")
+
+        exit = QtWidgets.QAction('Close', self)
+        exit.setShortcut('Ctrl+E')
+        exit.triggered.connect(self.go_back)
+        file.addAction(exit)
+
+        music = menu.addMenu("Music")
+
+        atat = QtWidgets.QAction('A Tisket, A Tasket', self)
+        atat.setShortcut('Ctrl+1')
+        atat.triggered.connect(self.atat)
+
+        fj = QtWidgets.QAction('Frere Jacques', self)
+        fj.setShortcut('Ctrl+2')
+        fj.triggered.connect(self.fj)
+
+        lb = QtWidgets.QAction('London Bridge', self)
+        lb.setShortcut('Ctrl+3')
+        lb.triggered.connect(self.lb)
+
+        music.addAction(atat)
+        music.addAction(fj)
+        music.addAction(lb)
+
+        return menu
+
+    def atat(self):
+        self.music_timer.stop()
+        self.frame_timer.stop()
+        global miss, time_music, time_stop, score_path
+        miss, time_music, time_stop = 0, 0, 24.7
+        self.mgame = Game(self.height, self.width, spath, 1, 4, 11, mpath + 'a-tisket-a-tasket-timeline.txt')
+        self.fvs = FileVideoStream(mpath + 'a-tisket-a-tasket-c4-c5-11.mp4').start()
+        score_path = mpath + 'a-tisket-a-tasket-score.txt'
+        self.music_timer.start(10) # 10 - норм, 5 - трудно, 1 - unreal
+        self.frame_timer.start(10)
+
+    def fj(self):
+        self.music_timer.stop()
+        self.frame_timer.stop()
+        global miss, time_music, time_stop, score_path
+        miss, time_music, time_stop = 0, 0, 24.7
+        self.fvs = FileVideoStream(mpath + 'frere-jacques-c3-c4-13.mp4').start()
+        self.mgame = Game(self.height, self.width, spath, 1, 3, 13, mpath + 'frere-jacques-timeline.txt')
+        score_path = mpath + 'frere-jacques-score.txt'
+        self.music_timer.start(10)
+        self.frame_timer.start(10)
+       
+    def lb(self):
+        self.music_timer.stop()
+        self.frame_timer.stop()
+        global miss, time_music, time_stop, score_path
+        miss, time_music, time_stop = 0, 0, 15.1
+        self.fvs = FileVideoStream(mpath + 'london-bridge-c3-c4-11.mp4').start()
+        self.mgame = Game(self.height, self.width, spath, 1, 3, 11, mpath + 'london-bridge-timeline.txt')
+        score_path = mpath + 'london-bridge-score.txt'
+        self.music_timer.start(10)
+        self.frame_timer.start(10)
+
+    def play_pause(self):
+        if not self.pause:
+            self.music_timer.stop()
+            self.frame_timer.stop()
+            self.play_pause_buttom.setText('Play')
+        else:
+            self.music_timer.start(10)
+            self.frame_timer.start(10)
+            self.play_pause_buttom.setText('Pause')
+        self.pause = not self.pause
+
+    def setup_camera(self):
+        self.music_timer.timeout.connect(self.music_stream)
+        self.frame_timer.timeout.connect(self.camera_stream)
+
+    def go_back(self):
+        self.frame_timer.stop()
+        self.music_timer.stop()
+        self.close()
+
+    def music_stream(self):
+        global time_music
+        time_music += 1
+        if self.fvs.more():
+            frame = self.fvs.read()
+            frame = cv.resize(frame, (int(m_width / 1.5), int(m_height / 3.9)),
+                        interpolation=cv.INTER_AREA)
+            frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+            image = qimage2ndarray.array2qimage(frame)
+            self.music_label.setPixmap(QtGui.QPixmap.fromImage(image))
+        
+    def camera_stream(self):
+        global time_music, score_path, miss
+        if (time_music*33)/1000 > time_stop:
+            self.music_timer.stop()
+            self.frame_timer.stop()
+            minmiss = 777
+            with open(score_path, 'r') as s:
+                minmiss = int(s.read())
+            if minmiss > miss:
+                with open(score_path, 'w') as s:
+                    s.write(str(miss))
+            
+        ret, img = self.camera_capture.read()
+        if img is None:
+            return
+        else:
+            img, m = self.mgame.render(img, (time_music * 33) / 1000, db_mode)
+            miss += m
+            cv.putText(img, 'Number of misses : {}'.format(str(miss)), (50, 300),
+                       cv.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), 3)
+            with open(score_path, 'r') as s:
+                cv.putText(img, "Best result: " + s.read() + " misses", (50, 450), cv.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), 3)
+
+            img = cv.resize(img, (int(m_width / 1.5), int(m_height / 2.2)),
+                            interpolation=cv.INTER_AREA)
+
+            img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+            image = qimage2ndarray.array2qimage(img)
+
+            self.frame_label.setPixmap(QtGui.QPixmap.fromImage(image))
+          
 
 if __name__ == '__main__':
-    sys.exit(main() or 0)
+    app = QtWidgets.QApplication(sys.argv)
+    app.setStyle('Fusion')
+    app.setWindowIcon(QtGui.QIcon('../icon/icon.png'))
+    player = VideoPlayer()
+    player.show()
+
+    sys.exit(app.exec_())
